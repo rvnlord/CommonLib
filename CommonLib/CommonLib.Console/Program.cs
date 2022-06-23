@@ -12,6 +12,9 @@ namespace CommonLib.Console
     {
         public static void Main()
         {
+            var path = @"G:\My Files\Programming\CSharp\Projects\MyProgram\MyProgram\obj\Host\bin";
+            var substring = @"\oBj\HoSt\bIN";
+            var before = path.BeforeFirstOrWholeIgnoreCase(substring);
 
             //var obj = new Node {
             //    Name = "one",
@@ -47,12 +50,7 @@ namespace CommonLib.Console
             //var decryptedText = cipheredText.Base58ToByteArray()
             //    .DecryptECC(receiverKeyPair.Private.ToECPrivateKeyByteArray(), senderKeyPair.Public.ToECPublicKeyByteArray())
             //    .ToUTF8String();
-
-            var path = @"G:\My Files\Programming\CSharp\Projects\MyProgram\MyProgram\obj\Host\bin";
-            var substring = @"\oBj\HoSt\bIN";
-            var before = path.BeforeFirstOrWholeIgnoreCase(substring);
-
-
+            
             var pt = "Long plain text";
             var keyPair = CryptoUtils.GenerateECCKeyPair();
 
