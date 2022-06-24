@@ -39,7 +39,7 @@ namespace CommonLib.Console
 
             //System.Console.WriteLine("Test completed");
 
-            //var pt = "Bartek ma 1000 pingu bo go mama nie lubi.";
+            //var pt = "Test string to encrypt.";
             //var senderKeyPair = CryptoUtils.GenerateECKeyPair();
             //var receiverKeyPair = CryptoUtils.GenerateECKeyPair();
 

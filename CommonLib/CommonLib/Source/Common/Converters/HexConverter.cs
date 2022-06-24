@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using CommonLib.Source.Common.Utils.TypeUtils;
+using MoreLinq;
 using Org.BouncyCastle.Math;
 
 namespace CommonLib.Source.Common.Converters
@@ -73,5 +75,36 @@ namespace CommonLib.Source.Common.Converters
             var strPrex = prefix ? "0x" : "";
             return strPrex + string.Concat(value.Select(b => b.ToStringInvariant("x2")).ToArray());
         }
+
+        public static byte[] ToByteArray(this int n, Endian endian = Endian.InheritFromHardware)
+        {
+            //return n.ToHexString().HexToByteArray().PadStart(4).ToArray();
+            //return BitConverter.GetBytes(IPAddress.HostToNetworkOrder(n));
+            if (endian == Endian.InheritFromHardware)
+                endian = BitConverter.IsLittleEndian ? Endian.LittleEndian : Endian.BigEndian;
+            return endian == Endian.LittleEndian 
+                ? new[] { (byte)(n >> 24), (byte)(n >> 16), (byte)(n >> 8), (byte)(n >> 0) }
+                : new[] { (byte)(n >> 0), (byte)(n >> 8), (byte)(n >> 16), (byte)(n >> 24) };
+        }
+
+        public static byte[] ToHexByteArray(this int n) => n.ToByteArray();
+
+        public static int ToInt(this byte[] bytes, Endian endian = Endian.InheritFromHardware)
+        {
+            //return (BitConverter.IsLittleEndian ? bytes : bytes.Reverse().ToArray()).HexToString().HexToInt();
+            //return BitConverter.ToInt32(BitConverter.IsLittleEndian ? bytes.Reverse().ToArray() : bytes);
+            if (endian == Endian.InheritFromHardware)
+                endian = BitConverter.IsLittleEndian ? Endian.LittleEndian : Endian.BigEndian;
+            return endian == Endian.LittleEndian
+                ? (bytes[0] << 24) | ((bytes[1] & 0xff) << 16) | ((bytes[2] & 0xff) << 8) | (bytes[3] & 0xff) 
+                : (bytes[3] << 24) | ((bytes[2] & 0xff) << 16) | ((bytes[1] & 0xff) << 8) | (bytes[0] & 0xff);
+        }
+    }
+
+    public enum Endian
+    {
+        LittleEndian,
+        BigEndian,
+        InheritFromHardware
     }
 }
