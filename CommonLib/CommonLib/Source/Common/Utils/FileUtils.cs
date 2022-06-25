@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
+using System.Threading.Tasks;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
 using MoreLinq;
@@ -149,6 +150,15 @@ namespace CommonLib.Source.Common.Utils
                 _ => throw new Exception("Invalid RunType")
             };
             return $@"{logPath}\ErrorLog.log";
+        }
+
+        public static async Task<byte[]> ReadBytesAsync(string filePath, int offset, int count)
+        {
+            var s = File.Open(filePath, FileMode.Open);
+            s.Position = offset;
+            var bytes = new byte[count];
+            await s.ReadAsync(bytes.AsMemory(0, count));
+            return bytes.Take((int)(s.Position - offset)).ToArray(); // take only the bytes that were actually in the file, I am subtracting initial position from the moved one, result should always be lower than 64 (int)
         }
     }
     
