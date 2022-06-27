@@ -2,6 +2,7 @@
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Threading.Tasks;
 using CommonLib.Source.Common.Utils.UtilClasses;
 
 namespace CommonLib.Source.Common.Extensions.Collections
@@ -84,6 +85,9 @@ namespace CommonLib.Source.Common.Extensions.Collections
             }
             return ret;
         }
+
+        public static async Task<byte[]> ConcatAsync(this byte[] arr, params byte[][] arrs) => await Task.Run(() => arr.Concat(arrs));
+
 
         public static void ForEach(this Array array, Action<Array, int[]> action)
         {

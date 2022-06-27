@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
 using Tensorflow;
 
@@ -126,6 +127,12 @@ namespace CommonLib.Source.Common.Extensions.Collections
                 list.Remove(item);
         }
 
+        public static List<T> RemoveLast<T>(this List<T> list)
+        {
+            list.RemoveAt(list.Count - 1);
+            return list;
+        }
+
         public static T Extract<T>(this List<T> list, T n)
         {
             if (list == null)
@@ -177,5 +184,8 @@ namespace CommonLib.Source.Common.Extensions.Collections
                 list.add(el);
             return list;
         }
+
+        public static async Task AddRangeAsync<T>(this List<T> l, IEnumerable<T> range) => await Task.Run(() => l.AddRange(range));
+
     }
 }

@@ -152,13 +152,40 @@ namespace CommonLib.Source.Common.Utils
             return $@"{logPath}\ErrorLog.log";
         }
 
-        public static async Task<byte[]> ReadBytesAsync(string filePath, int offset, int count)
+        public static byte[] ReadBytes(string filePath, long offset, int count)
+        {
+            var s = File.Open(filePath, FileMode.Open);
+            s.Position = offset;
+            var bytes = new byte[count];
+            s.Read(bytes, 0, count);
+            var newOffset = s.Position;
+            s.Dispose();
+            return bytes.Take((int)(newOffset - offset)).ToArray(); // take only the bytes that were actually in the file, I am subtracting initial position from the moved one, result should always be lower than 64 (int)
+        }
+
+        public static async Task<byte[]> ReadBytesAsync(string filePath, long offset, int count)
         {
             var s = File.Open(filePath, FileMode.Open);
             s.Position = offset;
             var bytes = new byte[count];
             await s.ReadAsync(bytes.AsMemory(0, count));
-            return bytes.Take((int)(s.Position - offset)).ToArray(); // take only the bytes that were actually in the file, I am subtracting initial position from the moved one, result should always be lower than 64 (int)
+            var newOffset = s.Position;
+            await s.DisposeAsync();
+            return bytes.Take((int)(newOffset - offset)).ToArray(); // take only the bytes that were actually in the file, I am subtracting initial position from the moved one, result should always be lower than 64 (int)
+        }
+
+        public static void AppendAllBytes(string path, byte[] bytes)
+        {
+            using var s = new FileStream(path, FileMode.Append);
+            s.Write(bytes, 0, bytes.Length);
+            s.Dispose();
+        }
+
+        public static async Task AppendAllBytesAsync(string path, byte[] bytes)
+        {
+            await using var s = new FileStream(path, FileMode.Append);
+            await s.WriteAsync(bytes);
+            await s.DisposeAsync();
         }
     }
     

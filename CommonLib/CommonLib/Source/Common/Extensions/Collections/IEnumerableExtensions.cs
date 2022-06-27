@@ -76,6 +76,41 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return -1;
         }
 
+        public static async Task<int> IndexOfAsync<T>(this IEnumerable<T> sourceCol, IEnumerable<T> subCol, int start = 0, int length = -1)
+            => await Task.Run(() => sourceCol.IndexOf_(subCol, start, length));
+
+        public static int IndexOf_<T>(this IEnumerable<T> sourceCol, IEnumerable<T> subCol, int start = 0, int length = -1)
+        {
+            var sourceArray = sourceCol.ToArray();
+            var sourceArrayLength = sourceArray.Length;
+            var subArray = subCol.ToArray();
+            var subArrayLength = subArray.Length;
+
+            if (subArrayLength <= 0)
+                return -1;
+            if (length == -1)
+                length = sourceArrayLength;
+
+            while (length >= subArrayLength)
+            {
+                var index = Array.IndexOf(sourceArray, subArray[0], start, length - subArrayLength + 1);
+                if (index == -1)
+                    return -1;
+
+                int i, p;
+                for (i = 0, p = index; i < subArrayLength; i++, p++)
+                    if (!sourceArray[p].Equals(subArray[i]))
+                        break;
+
+                if (i == subArrayLength)
+                    return index;
+                
+                length -= index - start + 1;
+                start = index + 1;
+            }
+            return -1;
+        }
+
         //public static T LastOrNull<T>(this IEnumerable<T> enumerable)
         //{
         //    var en = enumerable as T[] ?? enumerable.ToArray();
@@ -401,5 +436,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static IExtremaEnumerable<TSource> MinBy_<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) => MoreEnumerable.MinBy(source, keySelector);
 
         public static IEnumerable<TSource> TakeLast_<TSource>(this IEnumerable<TSource> source, int count) => MoreEnumerable.TakeLast(source, count);
+
+        public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource el) => MoreEnumerable.Append(source, el);
     }
 }
