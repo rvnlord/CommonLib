@@ -9,6 +9,7 @@ namespace CommonLib.Source.Common.Converters
 {
     public static class BitConverter_
     {
+        public static BitArray ToBitArray(this IEnumerable<bool> bits, Endian endian = Endian.InheritFromHardware) => BitUtils.GetEndianIfInherited(endian) == Endian.LittleEndian ? new BitArray(bits.ToArray()) : new BitArray(bits.Reverse().ToArray());
         public static BitArray ToBitArray(this int n, Endian endian = Endian.InheritFromHardware) => new (n.ToByteArray(endian));
         public static BitArray ToBitArray(this long n, Endian endian = Endian.InheritFromHardware) => new (n.ToByteArray(endian));
         public static BitArray ToBitArray(this byte b, Endian endian = Endian.InheritFromHardware) => BitUtils.GetEndianIfInherited(endian) == Endian.LittleEndian ? new BitArray(new[] { b }) : new BitArray(new BitArray(new[] { b }).Cast<bool>().Reverse().ToArray());
@@ -33,10 +34,11 @@ namespace CommonLib.Source.Common.Converters
             return BitUtils.GetEndianIfInherited(endian) == Endian.LittleEndian ? byteArray : byteArray.Reverse().ToArray();
         }
 
-        public static byte[] BitArrayToByteArray(BitArray ba, Endian endian = Endian.InheritFromHardware) => ba.ToByteArray(endian);
-        public static byte[] BitArrayToByteArray(IEnumerable<byte> ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
-        public static byte[] BitArrayToByteArray(int[] ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
-        public static byte[] BitArrayToByteArray(string ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
+        public static byte[] BitArrayToByteArray(this IEnumerable<bool> bits, Endian endian = Endian.InheritFromHardware) => bits.ToBitArray(endian).ToByteArray(endian);
+        public static byte[] BitArrayToByteArray(this BitArray ba, Endian endian = Endian.InheritFromHardware) => ba.ToByteArray(endian);
+        public static byte[] BitArrayToByteArray(this IEnumerable<byte> ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
+        public static byte[] BitArrayToByteArray(this int[] ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
+        public static byte[] BitArrayToByteArray(this string ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
 
         public static BitArray BitArrayStringToBitArray(this string s) => new (s.Select(c => c != '0').ToArray());
     }

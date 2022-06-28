@@ -185,6 +185,8 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return list;
         }
 
+        public static async Task AddAsync<T>(this List<T> l, T el) => await Task.Run(() => l.Add(el));
+
         public static async Task AddRangeAsync<T>(this List<T> l, IEnumerable<T> range) => await Task.Run(() => l.AddRange(range));
 
     }

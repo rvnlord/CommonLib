@@ -325,6 +325,8 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return MoreEnumerable.Prepend(en, el);
         }
 
+        public static IEnumerable<TSource> SkipLast_<TSource>(this IEnumerable<TSource> source, int n) => MoreEnumerable.SkipLast(source, n);
+        
         public static IEnumerable<TSource> TakeLastWhile<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> predicate)
         {
             if (source == null)
