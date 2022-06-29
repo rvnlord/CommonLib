@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -71,7 +72,7 @@ namespace CommonLib.Source.Common.Converters
             return int.Parse(str, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         }
 
-        public static string ToHexString(this byte[] value, bool prefix = false)
+        public static string ToHexString(this IEnumerable<byte> value, bool prefix = false)
         {
             var strPrex = prefix ? "0x" : "";
             return strPrex + string.Concat(value.Select(b => b.ToStringInvariant("x2")).ToArray());

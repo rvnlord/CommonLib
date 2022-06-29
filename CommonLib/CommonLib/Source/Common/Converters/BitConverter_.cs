@@ -53,18 +53,18 @@ namespace CommonLib.Source.Common.Converters
             return varIntLength.Concat(varIntData).ToArray();
         }
 
-        public static int GetFirstVarInt(this byte[] bytes)
+        public static int GetFirstVarInt(this IEnumerable<byte> bytes, int startIndexOfVarInt = 0)
         {
             var bits = bytes.ToBitArray<bool>();
-            var varIntLengthAsInt = bits.Take(5).ToInt();
-            var varIntDataAsInt = bits.Skip(5).Take(varIntLengthAsInt).ToInt();
+            var varIntLengthAsInt = bits.Skip(startIndexOfVarInt).Take(5).ToInt();
+            var varIntDataAsInt = bits.Skip(startIndexOfVarInt + 5).Take(varIntLengthAsInt).ToInt();
             return varIntDataAsInt;
         }
 
-        public static int GetFirstVarIntLength(this byte[] bytes)
+        public static int GetFirstVarIntLength(this IEnumerable<byte> bytes, int startIndexOfVarInt = 0)
         {
             var bits = bytes.ToBitArray<bool>();
-            return 5 + bits.Take(5).ToInt(); // 5 bits to store size and the actual size parsed
+            return 5 + bits.Skip(startIndexOfVarInt).Take(5).ToInt(); // 5 bits to store size and the actual size parsed
         }
     }
 }
