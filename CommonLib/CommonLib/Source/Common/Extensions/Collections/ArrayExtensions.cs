@@ -9,6 +9,12 @@ namespace CommonLib.Source.Common.Extensions.Collections
 {
     public static class ArrayExtensions
     {
+        public static async Task<TSource[]> SetAsync<TSource>(this TSource[] source, int index, TSource el)
+        {
+            await Task.Run(() => source[index] = el);
+            return source;
+        }
+
         public static T[] Add<T>(this T[] a, T el)
         {
             if (a == null)
@@ -29,16 +35,14 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return a;
         }
 
-        public static bool StartWith(this byte[] data, byte[] versionBytes)
+        public static bool StartsWith(this byte[] data, byte[] startsWith)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
-            if (versionBytes == null)
-                throw new ArgumentNullException(nameof(versionBytes));
+            if (startsWith == null)
+                throw new ArgumentNullException(nameof(startsWith));
 
-            if (data.Length < versionBytes.Length)
-                return false;
-            return !versionBytes.Where((t, i) => data[i] != t).Any();
+            return data.Length >= startsWith.Length && startsWith.All((t, i) => data[i] == t);
         }
 
         public static byte[] SafeSubarray(this byte[] array, int offset, int count)

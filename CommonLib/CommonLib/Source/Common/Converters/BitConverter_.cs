@@ -41,5 +41,30 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] BitArrayToByteArray(this string ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
 
         public static BitArray BitArrayStringToBitArray(this string s) => new (s.Select(c => c != '0').ToArray());
+
+        public static int ToInt(this IEnumerable<bool> bits) => bits.BitArrayToByteArray().ToInt();
+
+        public static bool[] ToVarInt(this int n, Endian endian = Endian.InheritFromHardware)
+        {
+            var ba = n.ToBitArray<bool>().EnforceLittleEndian(endian).ToArray();
+            var varIntData = ba.SkipLastWhile(bit => !bit).ToArray();
+            var varIntLength = varIntData.Length.ToBitArray<bool>().Take(5).ToArray();
+
+            return varIntLength.Concat(varIntData).ToArray();
+        }
+
+        public static int GetFirstVarInt(this byte[] bytes)
+        {
+            var bits = bytes.ToBitArray<bool>();
+            var varIntLengthAsInt = bits.Take(5).ToInt();
+            var varIntDataAsInt = bits.Skip(5).Take(varIntLengthAsInt).ToInt();
+            return varIntDataAsInt;
+        }
+
+        public static int GetFirstVarIntLength(this byte[] bytes)
+        {
+            var bits = bytes.ToBitArray<bool>();
+            return 5 + bits.Take(5).ToInt(); // 5 bits to store size and the actual size parsed
+        }
     }
 }

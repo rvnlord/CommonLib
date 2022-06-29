@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
 using MoreLinq;
+using Truncon.Collections;
 
 namespace CommonLib.Source.Common.Extensions.Collections
 {
@@ -61,6 +62,26 @@ namespace CommonLib.Source.Common.Extensions.Collections
             }
             return -1;
         }
+        public static async Task<int> IndexOfAsync<T>(this IEnumerable<T> en, T el) => await Task.Run(() => en.IndexOf_(el));
+
+        public static OrderedDictionary<TSource, int> IndexOfEach<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> colToIndIndicesOf)
+        {
+            var indices = new OrderedDictionary<TSource, int>();
+            var sourceArr = source.ToArray();
+            foreach (var el in colToIndIndicesOf)
+                indices[el] = sourceArr.IndexOf_(el);
+            return indices;
+        }
+
+        public static async Task<OrderedDictionary<TSource, int>> IndexOfEachAsync<TSource>(this IEnumerable<TSource> source, IEnumerable<TSource> colToIndIndicesOf) => await Task.Run(() => source.IndexOfEach(colToIndIndicesOf));
+
+        public static int[] IndexOfEach<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selector)
+        {
+            var sourceArr = source.ToArray();
+            return sourceArr.Select((e, i) => new KeyValuePair<int, bool>(i, selector(e))).Where(kvp => kvp.Value).Select(kvp => kvp.Key).ToArray();
+        }
+
+        public static async Task<int[]> IndexOfEachAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selector) => await Task.Run(() => source.IndexOfEach(selector));
 
         public static int IndexOf_(this IEnumerable en, object el)
         {
@@ -75,9 +96,6 @@ namespace CommonLib.Source.Common.Extensions.Collections
             }
             return -1;
         }
-
-        public static async Task<int> IndexOfAsync<T>(this IEnumerable<T> sourceCol, IEnumerable<T> subCol, int start = 0, int length = -1)
-            => await Task.Run(() => sourceCol.IndexOf_(subCol, start, length));
 
         public static int IndexOf_<T>(this IEnumerable<T> sourceCol, IEnumerable<T> subCol, int start = 0, int length = -1)
         {
@@ -110,6 +128,9 @@ namespace CommonLib.Source.Common.Extensions.Collections
             }
             return -1;
         }
+
+        public static async Task<int> IndexOfAsync<T>(this IEnumerable<T> sourceCol, IEnumerable<T> subCol, int start = 0, int length = -1)
+            => await Task.Run(() => sourceCol.IndexOf_(subCol, start, length));
 
         //public static T LastOrNull<T>(this IEnumerable<T> enumerable)
         //{
@@ -407,6 +428,12 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return false;
         }
 
+        public static bool All<TSource>(this IEnumerable<TSource> source, Func<TSource, int, bool> selector)
+        {
+            var sourceArr = source.ToArray();
+            return sourceArr.Where(selector).Count() == sourceArr.Length;
+        }
+
         public static ValueTask<T> SingleAsync<T>(this IEnumerable<T> en, Func<T, Task<bool>> selector)
         {
             return en.ToAsyncEnumerable().SingleAwaitAsync(async x => await selector(x).ConfigureAwait(false));
@@ -440,5 +467,8 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static IEnumerable<TSource> TakeLast_<TSource>(this IEnumerable<TSource> source, int count) => MoreEnumerable.TakeLast(source, count);
 
         public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource el) => MoreEnumerable.Append(source, el);
+
+        public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selector) => await Task.Run(() => source.Where(selector));
+        public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this Task<IEnumerable<TSource>> source, Func<TSource, bool> selector) => await (await source).WhereAsync(selector);
     }
 }

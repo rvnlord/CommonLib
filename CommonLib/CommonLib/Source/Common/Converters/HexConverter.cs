@@ -93,10 +93,8 @@ namespace CommonLib.Source.Common.Converters
         {
             //return (BitConverter.IsLittleEndian ? bytes : bytes.Reverse().ToArray()).HexToString().HexToInt();
             //return BitConverter.ToInt32(BitConverter.IsLittleEndian ? bytes.Reverse().ToArray() : bytes);
-            endian = BitUtils.GetEndianIfInherited(endian);
-            return endian != Endian.LittleEndian
-                ? (bytes[0] << 24) | ((bytes[1] & 0xff) << 16) | ((bytes[2] & 0xff) << 8) | (bytes[3] & 0xff) 
-                : (bytes[3] << 24) | ((bytes[2] & 0xff) << 16) | ((bytes[1] & 0xff) << 8) | (bytes[0] & 0xff);
+            bytes = bytes.EnforceLittleEndian(endian).Pad(4).ToArray();
+            return (bytes[3] << 24) | ((bytes[2] & 0xff) << 16) | ((bytes[1] & 0xff) << 8) | (bytes[0] & 0xff);
         }
 
         public static byte[] ToByteArray(this long n, Endian endian = Endian.InheritFromHardware)

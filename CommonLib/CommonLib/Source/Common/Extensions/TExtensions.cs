@@ -49,12 +49,14 @@ namespace CommonLib.Source.Common.Extensions
 
         public static bool In<T>(this T o, IEnumerable<T> os)
         {
-            var isImplementingIenumerable = typeof(T) != typeof(string) && typeof(T).GetInterfaces().Any(i => i.Name.ContainsInvariant("IEnumerable"));
+            var isImplementingIenumerable = o.IsIEnumerable();
             if (isImplementingIenumerable)
                 throw new ArgumentException("You can't use `In()` with `T` being a collection, did you mean to use `AllIn()` or `AnyIn()`?");
             
             return o.EqualsAny(os);
         }
+
+        public static bool IsIEnumerable<T>(this T _) => typeof(T) != typeof(string) && typeof(T).GetInterfaces().Any(i => i.Name.ContainsInvariant("IEnumerable"));
 
         public static bool AllIn<T>(this IEnumerable<T> en, IEnumerable<T> os)
         {
