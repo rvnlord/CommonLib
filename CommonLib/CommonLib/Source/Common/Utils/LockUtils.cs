@@ -10,7 +10,7 @@ namespace CommonLib.Source.Common.Utils
     {
         private static Logger _logger => Logger.For(typeof(LockUtils));
 
-        public static TResult Lock<TResult>(object syncObject, string syncObjectName, string methodName, Func<TResult> action)
+        public static TResult Lock<TResult>(object syncObject, string syncObjectName, string methodName, Func<TResult> action, bool log = false)
         {
             if (action == null)
                 throw new ArgumentNullException(nameof(action));
@@ -19,9 +19,11 @@ namespace CommonLib.Source.Common.Utils
             var temp = syncObject;
             try
             {
-                _logger.Debug($"{methodName}() waiting for {syncObjectName}");
+                if (log)
+                    _logger.Debug($"{methodName}() waiting for {syncObjectName}");
                 Monitor.Enter(temp, ref lockWasTaken);
-                _logger.Debug($"{methodName}() aquired {syncObjectName}");
+                if (log)
+                    _logger.Debug($"{methodName}() aquired {syncObjectName}");
                 return action();
             }
             finally
@@ -29,14 +31,16 @@ namespace CommonLib.Source.Common.Utils
                 if (lockWasTaken)
                 {
                     Monitor.Exit(temp);
-                    _logger.Debug($"{methodName}() released {syncObjectName}");
+                    if (log)
+                        _logger.Debug($"{methodName}() released {syncObjectName}");
                 }
                 else
-                    _logger.Debug($"{methodName}() lock was not taken {syncObjectName}");
+                    if (log)
+                        _logger.Debug($"{methodName}() lock was not taken {syncObjectName}");
             }
         }
 
-        public static TResult Lock<TResult>(object[] syncObjects, string[] syncObjectNames, string methodName, Func<TResult> action)
+        public static TResult Lock<TResult>(object[] syncObjects, string[] syncObjectNames, string methodName, Func<TResult> action, bool log = false)
         {
             if (syncObjectNames == null)
                 throw new ArgumentNullException(nameof(syncObjectNames));
@@ -49,9 +53,11 @@ namespace CommonLib.Source.Common.Utils
             {
                 for (var i = 0; i < temps.Length; i++)
                 {
-                    _logger.Debug($"{methodName}() waiting for {syncObjectNames[i]}");
+                    if (log)
+                        _logger.Debug($"{methodName}() waiting for {syncObjectNames[i]}");
                     Monitor.Enter(temps[i], ref nLockWasTaken[i]);
-                    _logger.Debug($"{methodName}() aquired {syncObjectNames[i]}");
+                    if (log)
+                        _logger.Debug($"{methodName}() aquired {syncObjectNames[i]}");
                 }
                 
                 return action();
@@ -63,15 +69,17 @@ namespace CommonLib.Source.Common.Utils
                     if (nLockWasTaken[i])
                     {
                         Monitor.Exit(temps[i]);
-                        _logger.Debug($"{methodName}() released {syncObjectNames[i]}");
+                        if (log)
+                            _logger.Debug($"{methodName}() released {syncObjectNames[i]}");
                     }
                     else
-                        _logger.Debug($"{methodName}() lock was not taken {syncObjectNames[i]}");
+                        if (log) 
+                            _logger.Debug($"{methodName}() lock was not taken {syncObjectNames[i]}");
                 }
             }
         }
 
-        public static void Lock(object syncObject, string syncObjectName, string methodName, Action action)
+        public static void Lock(object syncObject, string syncObjectName, string methodName, Action action, bool log = false)
         {
             if (syncObjectName.IsNullOrWhiteSpace())
                 throw new ArgumentNullException(nameof(syncObjectName));
@@ -84,9 +92,11 @@ namespace CommonLib.Source.Common.Utils
             var temp = syncObject;
             try
             {
-                _logger.Debug($"{methodName}() waiting for {syncObjectName}");
+                if (log)
+                    _logger.Debug($"{methodName}() waiting for {syncObjectName}");
                 Monitor.Enter(temp, ref lockWasTaken);
-                _logger.Debug($"{methodName}() aquired {syncObjectName}");
+                if (log)
+                    _logger.Debug($"{methodName}() aquired {syncObjectName}");
                 action();
             }
             finally
@@ -94,14 +104,16 @@ namespace CommonLib.Source.Common.Utils
                 if (lockWasTaken)
                 {
                     Monitor.Exit(temp);
-                    _logger.Debug($"{methodName}() released {syncObjectName}");
+                    if (log)
+                        _logger.Debug($"{methodName}() released {syncObjectName}");
                 }
                 else
-                    _logger.Debug($"{methodName}() lock was not taken {syncObjectName}");
+                    if (log)
+                        _logger.Debug($"{methodName}() lock was not taken {syncObjectName}");
             }
         }
 
-        public static void Lock(object[] syncObjects, string[] syncObjectNames, string methodName, Action action)
+        public static void Lock(object[] syncObjects, string[] syncObjectNames, string methodName, Action action, bool log  = false)
         {
             if (syncObjectNames == null)
                 throw new ArgumentNullException(nameof(syncObjectNames));
@@ -116,9 +128,11 @@ namespace CommonLib.Source.Common.Utils
             {
                 for (var i = 0; i < temps.Length; i++)
                 {
-                    _logger.Debug($"{methodName}() waiting for {syncObjectNames[i]}");
+                    if (log)
+                        _logger.Debug($"{methodName}() waiting for {syncObjectNames[i]}");
                     Monitor.Enter(temps[i], ref nLockWasTaken[i]);
-                    _logger.Debug($"{methodName}() aquired {syncObjectNames[i]}");
+                    if (log)
+                        _logger.Debug($"{methodName}() aquired {syncObjectNames[i]}");
                 }
 
                 action();
@@ -130,10 +144,12 @@ namespace CommonLib.Source.Common.Utils
                     if (nLockWasTaken[i])
                     {
                         Monitor.Exit(temps[i]);
-                        _logger.Debug($"{methodName}() released {syncObjectNames[i]}");
+                        if (log)
+                            _logger.Debug($"{methodName}() released {syncObjectNames[i]}");
                     }
                     else
-                        _logger.Debug($"{methodName}() lock was not taken {syncObjectNames[i]}");
+                        if (log)
+                            _logger.Debug($"{methodName}() lock was not taken {syncObjectNames[i]}");
                 }
             }
         }
