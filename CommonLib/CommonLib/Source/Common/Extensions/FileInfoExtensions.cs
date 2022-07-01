@@ -10,7 +10,7 @@ namespace CommonLib.Source.Common.Extensions
     {
         public static void Rename(this FileInfo fileInfo, string newName)
         {
-            fileInfo.MoveTo(PathUtils.Combine(PathSeparator.BSlash, fileInfo.Directory?.FullName ?? throw new NullReferenceException(), newName));
+            fileInfo.MoveTo(PathUtils.Combine(PathSeparator.BSlash, fileInfo.Directory?.FullName ?? throw new NullReferenceException(), newName), true);
         }
 
         public static async Task RenameAsync(this FileInfo fileInfo, string newName) => await Task.Run(() => fileInfo.Rename(newName));
