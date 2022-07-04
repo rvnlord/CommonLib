@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -23,8 +21,8 @@ namespace CommonLib.Source.Common.Utils
         public static IConfiguration GetFromAppSettings() => new ConfigurationBuilder().AddJsonFile("appsettings.json", false).Build();
         public static NetworkCredential GetRPCNetworkCredential(string rpcKey)
         {
-            var cCredentials = GetFromAppSettings().GetSection($"RPCs:{rpcKey}");
-            return new NetworkCredential(cCredentials.GetValue<string>("User"), cCredentials.GetValue<string>("Password"), cCredentials.GetValue<string>("Address"));
+            var jCredentials = File.ReadAllText("appsettings.json").JsonDeserialize()["RPCs"]?[rpcKey]; // using ConfigurationBUilder causing values to be cached even with 'reload on change' option
+            return new NetworkCredential(jCredentials?["User"]?.ToString(), jCredentials?["Password"]?.ToString(), $"http://{jCredentials?["Address"]?.ToString().BetweenOrWhole("://", "/")}/");
         }
 
         public static string FrontendBaseUrl
