@@ -44,11 +44,11 @@ namespace CommonLib.Source.Common.Converters
 
         public static int ToInt(this IEnumerable<bool> bits) => bits.BitArrayToByteArray().ToInt();
 
-        public static bool[] ToVarInt(this int n, Endian endian = Endian.InheritFromHardware)
+        public static bool[] ToVarInt(this int n, Endian endian = Endian.InheritFromHardware, int varIntSizeBits = 5, int varIntSizeAdd = 0)
         {
             var ba = n.ToBitArray<bool>().EnforceLittleEndian(endian).ToArray();
             var varIntData = ba.SkipLastWhile(bit => !bit).ToArray();
-            var varIntLength = varIntData.Length.ToBitArray<bool>().Take(5).ToArray();
+            var varIntLength = (varIntData.Length + varIntSizeAdd).ToBitArray<bool>().Take(varIntSizeBits).ToArray();
 
             return varIntLength.Concat(varIntData).ToArray();
         }

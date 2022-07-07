@@ -91,8 +91,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
         }
 
         public static async Task<byte[]> ConcatAsync(this byte[] arr, params byte[][] arrs) => await Task.Run(() => arr.Concat(arrs));
-
-
+        
         public static void ForEach(this Array array, Action<Array, int[]> action)
         {
             if (array == null) 
@@ -139,5 +138,10 @@ namespace CommonLib.Source.Common.Extensions.Collections
             gZipStream.CopyTo(outputStream);
             return outputStream.ToArray();
         }
+
+        public static T ValueOrDefault<T>(this T[] arr, int i) => i >= arr.Length ? default : arr[i];
+        public static T VorD<T>(this T[] arr, int i) => arr.ValueOrDefault(i);
+        public static T ValueOrNull<T>(this T[] arr, int i) where T : class => i >= arr.Length ? null : arr[i];
+        public static T VorN<T>(this T[] arr, int i) where T : class => arr.ValueOrNull(i);
     }
 }

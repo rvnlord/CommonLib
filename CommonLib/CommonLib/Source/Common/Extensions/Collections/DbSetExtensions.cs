@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Expression = System.Linq.Expressions.Expression;
 
@@ -128,5 +129,9 @@ namespace CommonLib.Source.Common.Extensions.Collections
         }
 
         public static IAsyncQueryable AsAsyncQueryable<TEntity>(this DbSet<TEntity> dbSet) where TEntity : class => dbSet.ToAsyncEnumerable().AsAsyncQueryable();
+
+        public static void Clear<T>(this DbSet<T> dbSet) where T : class => dbSet.RemoveRange(dbSet);
+
+        public static async Task ClearAsync<T>(this DbSet<T> dbSet) where T : class => await Task.Run(() => dbSet.RemoveRange(dbSet));
     }
 }
