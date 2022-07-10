@@ -37,7 +37,7 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] BitArrayToByteArray(this BitArray ba, Endian endian = Endian.InheritFromHardware) => ba.ToByteArray(endian);
         public static byte[] BitArrayToByteArray(this IEnumerable<byte> ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
         public static byte[] BitArrayToByteArray(this int[] ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
-        public static byte[] BitArrayToByteArray(this string ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == 1).ToArray()).ToByteArray(endian);
+        public static byte[] BitArrayToByteArray(this string ba, Endian endian = Endian.InheritFromHardware) => new BitArray(ba.Select(bit => bit == '1').ToArray()).ToByteArray(endian);
 
         public static BitArray BitArrayStringToBitArray(this string s) => new (s.Select(c => c != '0').ToArray());
 

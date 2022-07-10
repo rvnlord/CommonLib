@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using CommonLib.Source.Common.Extensions;
+﻿using CommonLib.Source.Common.Extensions;
 using NUnit.Framework;
-using NUnit.Framework.Internal;
 
 namespace CommonLib.UnitTests.Source.Common.Extensions.StringExtensions
 {

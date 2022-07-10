@@ -12,6 +12,24 @@ namespace CommonLib.Console
     {
         public static void Main()
         {
+            var vi1 = 7.ToVarInt();
+            var vi2 = 1000.ToVarInt();
+            var vi3 = 4095.ToVarInt();
+            var vi4 = 8100.ToVarInt();
+            var vi5 = 8100.ToVarInt(4);
+            var vi6 = 8100.ToVarInt(4, 3);
+            var vi7 = Enumerable.Repeat(false, 7).Concat(8100.ToVarInt(4, 3));
+
+            var vis1 = vi1.ToBitArrayString();
+            var vis2 = vi2.ToBitArrayString();
+            var vis3 = vi3.ToBitArrayString();
+            var vis4 = vi4.ToBitArrayString();
+            var vis5 = vi5.ToBitArrayString();
+            var vis6 = vi6.ToBitArrayString();
+            var vis7 = vi7.ToBitArrayString();
+
+            var v = vi5.BitArrayToByteArray().GetFirstVarIntLength(0, 4);
+
             var path = @"G:\My Files\Programming\CSharp\Projects\MyProgram\MyProgram\obj\Host\bin";
             var substring = @"\oBj\HoSt\bIN";
             var before = path.BeforeFirstOrWholeIgnoreCase(substring);
