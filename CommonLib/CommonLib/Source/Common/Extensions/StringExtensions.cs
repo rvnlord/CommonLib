@@ -717,9 +717,9 @@ namespace CommonLib.Source.Common.Extensions
 
             return nullValue switch
             {
-                NoValueType.Null => result.IsNullOrEmpty() ? null : result,
-                NoValueType.Whole => result.IsNullOrEmpty() ? str : result,
-                NoValueType.Throw => result.IsNullOrEmpty() ? throw new NullReferenceException(nameof(result)) : result,
+                NoValueType.Null => result,
+                NoValueType.Whole => result ?? str,
+                NoValueType.Throw => result ?? throw new NullReferenceException(nameof(result)),
                 _ => throw new NullReferenceException(nameof(result))
             };
         }

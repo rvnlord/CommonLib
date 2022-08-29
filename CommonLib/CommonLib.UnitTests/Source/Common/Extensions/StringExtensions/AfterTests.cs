@@ -63,9 +63,10 @@ namespace CommonLib.UnitTests.Source.Common.Extensions.StringExtensions
         }
 
         [Test]
-        public void After_ThrowIfReturnValueIsEmpty()
+        public void After_ReturnEmptyValueIfThereIsAnOccuranceButReturnedStringLengthIsZero()
         {
-            Assert.Throws<NullReferenceException>(() => "hedgehog fox".After("fox"));
+            Assert.AreEqual("", "hedgehog fox".After("fox"));
+            Assert.AreEqual("", "?keepPrompt=true".BeforeFirstOrWhole("?"));
         }
         
         [Test]

@@ -82,6 +82,8 @@ namespace CommonLib.Console
                 .DecompressGZip()
                 .ToUTF8String();
 
+            var beforeOrWhole = "?keepPrompt=true".BeforeFirstOrWhole("?");
+
             //System.Console.WriteLine($"1st priv key: {keyPair.Person1Private.ToBase58String()}");
             //System.Console.WriteLine($"2nd priv key: {keyPair.Person2Private.ToBase58String()}");
             //System.Console.WriteLine($"plain text: {pt}");
