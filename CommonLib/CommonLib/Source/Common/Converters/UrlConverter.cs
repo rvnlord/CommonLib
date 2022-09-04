@@ -43,6 +43,8 @@ namespace CommonLib.Source.Common.Converters
             return sb.ToString().Skip(1);
         }
 
+        public static string ToQueryString(this IEnumerable<KeyValuePair<string, string>> parameters) => parameters.ToOrderedDictionary().ToQueryString();
+
         public static string ToAddressEncoded(this string str) => Uri.EscapeDataString(str); // Uri.EscapeDataString HttpUtility.UrlPathEncode
 
         public static string HtmlEncode(this string s)
