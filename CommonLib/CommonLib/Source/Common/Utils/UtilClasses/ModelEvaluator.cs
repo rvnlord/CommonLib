@@ -15,10 +15,10 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
     {
         private static (TModel, string, TProperty, string) GetModelAndPropertyInternal<TModel, TProperty>(this Expression accessorBody, TModel model = default)
         {
-            if (accessorBody is UnaryExpression unaryExpression && unaryExpression.NodeType == ExpressionType.Convert && unaryExpression.Type == typeof(object))
+            if (accessorBody is UnaryExpression { NodeType: ExpressionType.Convert } unaryExpression && unaryExpression.Type == typeof(object))
                 accessorBody = unaryExpression.Operand;
 
-            if (!(accessorBody is MemberExpression memberExpression))
+            if (accessorBody is not MemberExpression memberExpression)
                 throw new ArgumentException($"The provided expression contains a {accessorBody.GetType().Name} which is not supported. Only simple member accessors (fields, properties) of an object are supported.");
 
             var propertyName = memberExpression.Member.Name;
@@ -27,12 +27,12 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             {
                 switch (memberExpression.Expression)
                 {
-                case ConstantExpression constantExpression:
+                    case ConstantExpression constantExpression:
                     {
                         model = (TModel)constantExpression.Value;
                         break;
                     }
-                default:
+                    default:
                     {
                         var modelLambda = Expression.Lambda(memberExpression.Expression);
                         var modelLambdaCompiled = (Func<object>)modelLambda.Compile();
@@ -67,7 +67,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
                 throw new ArgumentNullException(nameof(expr));
 
             var type = model.GetType(); // typeof(TSource)
-            if (!(expr.Body is MemberExpression memberExpression))
+            if (expr.Body is not MemberExpression memberExpression)
                 throw new ArgumentException($"Expression '{expr}' refers to a method, not a property.");
             var propertyInfo = memberExpression.Member as PropertyInfo;
             if (propertyInfo == null)
