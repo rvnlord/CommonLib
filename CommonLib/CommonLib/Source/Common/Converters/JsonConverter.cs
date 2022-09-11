@@ -26,8 +26,8 @@ namespace CommonLib.Source.Common.Converters
             jSerializer.Converters.Add(new DecimalJsonConverter());
             jSerializer.Converters.Add(new LookupJsonConverter<string, string>());
             jSerializer.Converters.Add(new ExceptionJsonConverter());
-            jSerializer.Converters.Add(new DecimalJsonConverter());
             jSerializer.Converters.Add(new TypeJsonConverter());
+            jSerializer.Converters.Add(new ExtendedTimeJsonConverter());
             return jSerializer;
         }
 
