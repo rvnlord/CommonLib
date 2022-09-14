@@ -20,8 +20,19 @@ namespace CommonLib.Source.Common.Extensions
             if (src == null)
                 throw new ArgumentNullException(nameof(src));
 
-            return (T)src.GetType().GetProperty(propName)?.GetValue(src, null);
+            return (T)src.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)?.GetValue(src, null);
         }
+        
+        public static T GetPropertyOrNull<T>(this object src, string propName) where T : class
+        {
+            if (src == null)
+                throw new ArgumentNullException(nameof(src));
+
+            return src.GetType().GetProperty(propName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)?.GetValue(src, null) as T;
+        }
+
+        public static object GetProperty(this object src, string propName) => src.GetProperty<object>(propName);
+        public static object GetPropertyOrNull(this object src, string propName) => src.GetPropertyOrNull<object>(propName);
 
         public static void SetProperty<T>(this object src, string propName, T propValue)
         {
@@ -119,6 +130,6 @@ namespace CommonLib.Source.Common.Extensions
             }
         }
 
-        public static string[] GetPropertyNames(this object o) => o.GetType().GetProperties().Select(p => p.Name).ToArray();
+        public static string[] GetPropertyNames(this object o) => o.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static).Select(p => p.Name).ToArray();
     }
 }

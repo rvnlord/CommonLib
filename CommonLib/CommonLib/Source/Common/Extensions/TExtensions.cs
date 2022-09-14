@@ -73,9 +73,9 @@ namespace CommonLib.Source.Common.Extensions
             return source.MapTo(new T());
         }
 
-        public static TDest MapTo<TSource, TDest>(this TSource source, TDest dest)
+        public static TDest MapTo<TSource, TDest>(this TSource source, TDest dest, IMapper mapper = null)
         {
-            var mapper = AutoMapperUtils.Instance.Mapper;
+            mapper ??= AutoMapperUtils.Instance.Mapper;
             if (mapper == null)
                 throw new AutoMapperConfigurationException("Automapper is not configured, call Configure() method of AutoMapperUtils");
 
