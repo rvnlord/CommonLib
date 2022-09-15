@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,14 +15,17 @@ namespace CommonLib.Source.Common.Utils
     {
         private static OrderedDictionary<string, string> _projectPaths = new();
 
-        public static string GetAssemblyFileName() => GetAssemblyPath().Split(@"\").Last();
-        public static string GetAssemblyDir() => Path.GetDirectoryName(GetAssemblyPath());
-        public static string GetAssemblyPath() => Assembly.GetExecutingAssembly().Location;
+        public static string GetEntryAssemblyFileName() => GetEntryAssemblyPath().Split(@"\").Last();
+        public static string GetEntryAssemblyDir() => Path.GetDirectoryName(GetEntryAssemblyPath());
+        public static string GetEntryAssemblyPath() => Assembly.GetEntryAssembly()?.Location;
+        public static string GetExecutingAssemblyFileName() => GetExecutingAssemblyPath().Split(@"\").Last();
+        public static string GetExecutingAssemblyDir() => Path.GetDirectoryName(GetExecutingAssemblyPath());
+        public static string GetExecutingAssemblyPath() => Assembly.GetExecutingAssembly().Location;
         public static string GetSolutionFileName() => GetSolutionPath().Split(@"\").Last();
         public static string GetSolutionDir() => Directory.GetParent(GetSolutionPath())?.FullName;
         public static string GetSolutionPath()
         {
-            var currentDirPath = GetAssemblyDir();
+            var currentDirPath = GetExecutingAssemblyDir();
             while (currentDirPath != null)
             {
                 var fileInCurrentDir = Directory.GetFiles(currentDirPath).Select(f => f.Split(@"\").Last()).ToArray();
@@ -80,54 +82,48 @@ namespace CommonLib.Source.Common.Utils
         {
             if (useSolutionFile)
                 return GetProjectPath<T>().BeforeLast(@"\");
+            
+            return FindProjectDirByAssembly(Assembly.GetAssembly(typeof(T)));
+        }
 
-            var assembly = Assembly.GetAssembly(typeof(T));
+        public static string GetEntryProjectDir(bool useSolutionFile = true)
+        {
+            if (useSolutionFile)
+            {
+                var entryAssemblyDir = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location) ?? throw new ArgumentNullException(null, "executingAssemblyDir");
+                return MoreEnumerable.MaxBy(GetProjectDirs(), p => entryAssemblyDir.IntersectOrNullIgnoreCase(p.Value)?.Length).Single().Value;
+            }
+            
+            return FindProjectDirByAssembly(Assembly.GetEntryAssembly());
+        }
+
+        private static string FindProjectDirByAssembly(Assembly assembly)
+        {
             var assemblyDir = assembly?.Location.BeforeLast(@"\") ?? "";
             var assemblyName = assembly?.FullName.BeforeFirst(",") ?? "";
             string[] dirsWithAssemblyName;
             do
             {
-                dirsWithAssemblyName = Directory.GetDirectories(assemblyDir, assemblyName, SearchOption.AllDirectories).Where(d => d.EndsWithIgnoreCase(assemblyName)).ToArray();
-                assemblyDir = Directory.GetParent(assemblyDir)?.FullName;
-            } while (!dirsWithAssemblyName.Any() && assemblyDir is not null);
-
-            return dirsWithAssemblyName.Where(d => !d.Split(@"\").Any(f => f.StartsWith('.'))).MaxBy_(p => p.Length).Single();
-        }
-
-        public static string GetAspNetWwwRootDir<T>()
-        {
-            var projDir = GetProjectDir<T>(false);
-            return Directory.GetDirectories(projDir, "wwwroot", SearchOption.AllDirectories).Single();
-        }
-
-        public static string GetAspNetContentDir<T>() => Directory.GetParent(GetAspNetWwwRootDir<T>())?.FullName;
-
-        public static string GetCurrentProjectAspNetWwwRootDir()
-        {
-            return Directory.GetDirectories(GetCurrentProjectDir(false), "wwwroot", SearchOption.AllDirectories).Single();
-        }
-
-        public static string GetCurrentProjectAspNetContentDir() => Directory.GetParent(GetCurrentProjectAspNetWwwRootDir())?.FullName;
-
-        public static string GetCurrentProjectDir(bool useSolutionFile = true)
-        {
-            if (useSolutionFile)
-            {
-                var executingAssemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new ArgumentNullException(null, "executingAssemblyDir");
-                return MoreEnumerable.MaxBy(GetProjectDirs(), p => executingAssemblyDir.IntersectOrNullIgnoreCase(p.Value)?.Length).Single().Value;
-            }
-
-            var assembly = Assembly.GetEntryAssembly();
-            var assemblyDir = assembly.Location.BeforeLast(@"\");
-            var assemblyName = assembly.FullName.BeforeFirst(",");
-            string[] dirsWithAssemblyName;
-            do
-            {
-                dirsWithAssemblyName = Directory.GetDirectories(assemblyDir, assemblyName, SearchOption.TopDirectoryOnly).Where(d => d.EndsWithIgnoreCase(assemblyName)).ToArray();
+                dirsWithAssemblyName = Directory.GetDirectories(assemblyDir, assemblyName, SearchOption.AllDirectories)
+                    .Where(d => d.EndsWithIgnoreCase(assemblyName))
+                    .Where(d => !d.Split(@"\").Any(f => f.StartsWith('.') || f.EqAnyIgnoreCase("Publish", "obj", "PubTmp"))).ToArray();
                 assemblyDir = Directory.GetParent(assemblyDir)?.FullName;
             } while (!dirsWithAssemblyName.Any() && assemblyDir is not null);
 
             return dirsWithAssemblyName.MaxBy_(p => p.Length).Single();
+        }
+
+        public static string GetAspNetWwwRootDir<T>(bool useSolutionFile = true) => FindWwwRootDirByProjectDir(GetProjectDir<T>(useSolutionFile));
+        public static string GetEntryProjectAspNetWwwRootDir(bool useSolutionFile = true) => FindWwwRootDirByProjectDir(GetEntryProjectDir(useSolutionFile));
+        // Executing won't work properly with this, it will always be `CommonLib` (this Assembly)
+
+        public static string GetAspNetContentDir<T>(bool useSolutionFile = true) => Directory.GetParent(GetAspNetWwwRootDir<T>(useSolutionFile))?.FullName;
+        public static string GetEntryProjectAspNetContentDir(bool useSolutionFile = true) => Directory.GetParent(GetEntryProjectAspNetWwwRootDir(useSolutionFile))?.FullName;
+
+        private static string FindWwwRootDirByProjectDir(string projDir)
+        {
+            return Directory.GetDirectories(projDir, "wwwroot", SearchOption.AllDirectories)
+                .Where(d => d.EndsWithIgnoreCase("wwwroot")).Single(d => !d.Split(@"\").Any(f => f.StartsWith('.') || f.EqAnyIgnoreCase("Publish", "obj", "PubTmp")));
         }
 
         public static string GetFilePath<T>()

@@ -16,7 +16,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         {
             // DBCS: "Data Source=.\\Database\\store.db"
             var dbcs = ConfigUtils.GetFromAppSettings().GetConnectionString(csConfigName);
-            var dbPath = PathUtils.Combine(PathSeparator.BSlash, FileUtils.GetAssemblyDir(), dbcs.AfterFirst("="));
+            var dbPath = PathUtils.Combine(PathSeparator.BSlash, FileUtils.GetEntryAssemblyDir(), dbcs.AfterFirst("="));
             dbcs = $"{dbcs.BeforeFirst("=")}={dbPath}";
             Directory.CreateDirectory(Path.GetDirectoryName(dbPath) ?? throw new NullReferenceException()); // SQLite provider has no access to creating folders so migration would crash
 
