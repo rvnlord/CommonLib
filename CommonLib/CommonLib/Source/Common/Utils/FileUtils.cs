@@ -72,16 +72,62 @@ namespace CommonLib.Source.Common.Utils
         {
             var paths = GetProjectPaths();
             var ns = typeof(T).Namespace ?? throw new NullReferenceException();
-            var path = MoreEnumerable.MaxBy(paths.Where(p => ns.StartsWith(p.Key)), p => p.Key.Length).Single();
+            var path = paths.Where(p => ns.StartsWith(p.Key)).MaxBy_(p => p.Key.Length).Single();
             return path.Value;
         }
         
-        public static string GetProjectDir<T>() => GetProjectPath<T>().BeforeLast(@"\");
-
-        public static string GetCurrentProjectDir()
+        public static string GetProjectDir<T>(bool useSolutionFile = true)
         {
-            var executingAssemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new ArgumentNullException(null, "executingAssemblyDir");
-            return MoreEnumerable.MaxBy(GetProjectDirs(), p => executingAssemblyDir.IntersectOrNullIgnoreCase(p.Value)?.Length).Single().Value;
+            if (useSolutionFile)
+                return GetProjectPath<T>().BeforeLast(@"\");
+
+            var assembly = Assembly.GetAssembly(typeof(T));
+            var assemblyDir = assembly?.Location.BeforeLast(@"\") ?? "";
+            var assemblyName = assembly?.FullName.BeforeFirst(",") ?? "";
+            string[] dirsWithAssemblyName;
+            do
+            {
+                dirsWithAssemblyName = Directory.GetDirectories(assemblyDir, assemblyName, SearchOption.AllDirectories).Where(d => d.EndsWithIgnoreCase(assemblyName)).ToArray();
+                assemblyDir = Directory.GetParent(assemblyDir)?.FullName;
+            } while (!dirsWithAssemblyName.Any() && assemblyDir is not null);
+
+            return dirsWithAssemblyName.Where(d => !d.Split(@"\").Any(f => f.StartsWith('.'))).MaxBy_(p => p.Length).Single();
+        }
+
+        public static string GetAspNetWwwRootDir<T>()
+        {
+            var projDir = GetProjectDir<T>(false);
+            return Directory.GetDirectories(projDir, "wwwroot", SearchOption.AllDirectories).Single();
+        }
+
+        public static string GetAspNetContentDir<T>() => Directory.GetParent(GetAspNetWwwRootDir<T>())?.FullName;
+
+        public static string GetCurrentProjectAspNetWwwRootDir()
+        {
+            return Directory.GetDirectories(GetCurrentProjectDir(false), "wwwroot", SearchOption.AllDirectories).Single();
+        }
+
+        public static string GetCurrentProjectAspNetContentDir() => Directory.GetParent(GetCurrentProjectAspNetWwwRootDir())?.FullName;
+
+        public static string GetCurrentProjectDir(bool useSolutionFile = true)
+        {
+            if (useSolutionFile)
+            {
+                var executingAssemblyDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? throw new ArgumentNullException(null, "executingAssemblyDir");
+                return MoreEnumerable.MaxBy(GetProjectDirs(), p => executingAssemblyDir.IntersectOrNullIgnoreCase(p.Value)?.Length).Single().Value;
+            }
+
+            var assembly = Assembly.GetEntryAssembly();
+            var assemblyDir = assembly.Location.BeforeLast(@"\");
+            var assemblyName = assembly.FullName.BeforeFirst(",");
+            string[] dirsWithAssemblyName;
+            do
+            {
+                dirsWithAssemblyName = Directory.GetDirectories(assemblyDir, assemblyName, SearchOption.TopDirectoryOnly).Where(d => d.EndsWithIgnoreCase(assemblyName)).ToArray();
+                assemblyDir = Directory.GetParent(assemblyDir)?.FullName;
+            } while (!dirsWithAssemblyName.Any() && assemblyDir is not null);
+
+            return dirsWithAssemblyName.MaxBy_(p => p.Length).Single();
         }
 
         public static string GetFilePath<T>()
