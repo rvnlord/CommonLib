@@ -123,7 +123,7 @@ namespace CommonLib.Source.Common.Utils
         private static string FindWwwRootDirByProjectDir(string projDir)
         {
             return Directory.GetDirectories(projDir, "wwwroot", SearchOption.AllDirectories)
-                .Where(d => d.EndsWithIgnoreCase("wwwroot")).Single(d => !d.Split(@"\").Any(f => f.StartsWith('.') || f.EqAnyIgnoreCase("Publish", "obj", "PubTmp")));
+                .Where(d => d.EndsWithIgnoreCase("wwwroot")).Single(d => !d.Split(@"\").Any(f => f.StartsWith('.') || f.EqAnyIgnoreCase("Publish", "obj", "PubTmp", "Debug")));
         }
 
         public static string GetFilePath<T>()
