@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
@@ -132,11 +133,11 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static async Task<int> IndexOfAsync<T>(this IEnumerable<T> sourceCol, IEnumerable<T> subCol, int start = 0, int length = -1)
             => await Task.Run(() => sourceCol.IndexOf_(subCol, start, length));
 
-        //public static T LastOrNull<T>(this IEnumerable<T> enumerable)
-        //{
-        //    var en = enumerable as T[] ?? enumerable.ToArray();
-        //    return en.Any() ? en.Last() : (T)Convert.ChangeType(null, typeof(T), CultureInfo.InvariantCulture);
-        //}
+        public static T LastOrNull<T>(this IEnumerable<T> enumerable) where T : class
+        {
+            var en = enumerable as T[] ?? enumerable.ToArray();
+            return en.Any() ? en.Last() : (T)Convert.ChangeType(null, typeof(T), CultureInfo.InvariantCulture);
+        }
 
         public static IEnumerable<T> ConcatMany<T>(this IEnumerable<T> enumerable, params IEnumerable<T>[] enums)
         {
@@ -465,10 +466,12 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static IExtremaEnumerable<TSource> MinBy_<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) => MoreEnumerable.MinBy(source, keySelector);
 
         public static IEnumerable<TSource> TakeLast_<TSource>(this IEnumerable<TSource> source, int count) => MoreEnumerable.TakeLast(source, count);
-
-        public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource el) => MoreEnumerable.Append(source, el);
-
+        
         public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selector) => await Task.Run(() => source.Where(selector));
         public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this Task<IEnumerable<TSource>> source, Func<TSource, bool> selector) => await (await source).WhereAsync(selector);
+
+        public static IEnumerable<TSource> Prepend_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Prepend(source, element);
+        public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Append(source, element);
+
     }
 }
