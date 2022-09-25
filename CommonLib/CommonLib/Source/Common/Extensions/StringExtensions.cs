@@ -783,8 +783,10 @@ namespace CommonLib.Source.Common.Extensions
 
         public static bool EqualsInvariant(this string str1, string str2)
         {
-            if (str1 == null)
-                throw new ArgumentNullException(nameof(str1));
+            if (str1 is null && str2 is null)
+                return true;
+            if (str1 is null || str2 is null)
+                return false;
 
             return str1.Equals(str2, StringComparison.InvariantCulture);
         }
