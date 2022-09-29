@@ -1228,5 +1228,8 @@ namespace CommonLib.Source.Common.Extensions
         public static string IntersectOrWholeIgnoreCase(this string s, string sub) => s.IntersectInternal(sub, NoValueType.Whole, CaseType.IgnoreCase);
 
         public static bool IsEmailAddress(this string s) => Regex.IsMatch(s, @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$");
+
+        public static string NullifyIfNullOrEmpty(this string s) => s.NullifyIf(str => str.IsNullOrEmpty());
+        public static string NullifyIfNullOrWhiteSpace(this string s) => s.NullifyIf(str => str.IsNullOrWhiteSpace());
     }
 }
