@@ -465,6 +465,9 @@ namespace CommonLib.Source.Common.Extensions.Collections
 
         public static IExtremaEnumerable<TSource> MinBy_<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector) => MoreEnumerable.MinBy(source, keySelector);
 
+        public static TSource MaxOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue = default) => source.DefaultIfEmpty(defaultValue).Max();
+        public static TSource MinOrDefault<TSource>(this IEnumerable<TSource> source, TSource defaultValue = default) => source.DefaultIfEmpty(defaultValue).Min();
+
         public static IEnumerable<TSource> TakeLast_<TSource>(this IEnumerable<TSource> source, int count) => MoreEnumerable.TakeLast(source, count);
         
         public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selector) => await Task.Run(() => source.Where(selector));
