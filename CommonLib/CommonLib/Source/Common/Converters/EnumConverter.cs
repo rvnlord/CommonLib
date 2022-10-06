@@ -25,6 +25,8 @@ namespace CommonLib.Source.Common.Converters
             return strEnumN;
         }
 
+        public static string EnumToString(this object o) => ((Enum) o).EnumToString();
+
         public static DdlItem EnumToDdlItem(this Enum en)
         {
             return new DdlItem(en.ToInt(), en.EnumToString());
@@ -47,7 +49,7 @@ namespace CommonLib.Source.Common.Converters
 
         public static T ToEnum<T>(this object value) where T : struct
         {
-            if (value == null)
+            if (value is null)
                 throw new ArgumentNullException(nameof(value));
 
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enum");
@@ -56,7 +58,7 @@ namespace CommonLib.Source.Common.Converters
 
         public static T? ToEnumN<T>(this object value) where T : struct
         {
-            if (value == null)
+            if (value is null)
                 throw new ArgumentNullException(nameof(value));
 
             if (!typeof(T).IsEnum) throw new ArgumentException("T must be an Enum");
