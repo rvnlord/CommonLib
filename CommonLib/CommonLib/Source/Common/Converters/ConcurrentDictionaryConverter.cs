@@ -20,7 +20,7 @@ namespace CommonLib.Source.Common.Converters
             while (i < cdict.Count)
             {
                 var kvp = cdict.ElementAtOrDefault(i);
-                dict.Add(kvp.Key, kvp.Value);
+                dict[kvp.Key] = kvp.Value;
                 i++;
             }
 
