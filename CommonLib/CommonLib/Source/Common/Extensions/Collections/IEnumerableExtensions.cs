@@ -476,5 +476,6 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static IEnumerable<TSource> Prepend_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Prepend(source, element);
         public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Append(source, element);
 
+        public static T Second<T>(this IEnumerable<T> en) => en.ElementAt(1);
     }
 }
