@@ -12,5 +12,19 @@ namespace CommonLib.Source.Common.Converters
         }
 
         public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> en) => new(en);
+
+        public static Dictionary<TKey, TValue> SafelyToDictionary<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> cdict)
+        {
+            var i = 0;
+            var dict = new Dictionary<TKey, TValue>();
+            while (i < cdict.Count)
+            {
+                var kvp = cdict.ElementAtOrDefault(i);
+                dict.Add(kvp.Key, kvp.Value);
+                i++;
+            }
+
+            return dict;
+        }
     }
 }
