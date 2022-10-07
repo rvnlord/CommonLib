@@ -1,4 +1,7 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using CommonLib.Source.Common.Extensions;
@@ -21,18 +24,31 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         {
             _semaphore = new SemaphoreSlim(initialCount, maxCount);
         }
-        
-        public void Wait() => WaitAsync().Sync();
 
-        public Task WaitAsync()
+        public void Wait(TimeSpan? throwAfter = null) => WaitAsync(throwAfter).Wait();
+
+        public Task WaitAsync(TimeSpan? throwAfter = null)
         {
             var tcs = new TaskCompletionSource<bool>();
             _queue.Enqueue(tcs);
-            _semaphore.WaitAsync().ContinueWith(_ =>
+            
+            var waitForSempahoreTask = _semaphore.WaitAsync();
+            var timeoutTask = Task.Delay(throwAfter ?? TimeSpan.FromSeconds(30));
+            var waitForSemaphoreOrTimeoutTask = new List<Task> { waitForSempahoreTask, timeoutTask };
+
+            Task.WhenAny(waitForSemaphoreOrTimeoutTask).ContinueWith(task =>
             {
-                if (_queue.TryDequeue(out var popped))
-                    popped.SetResult(true);
+                if (waitForSempahoreTask.IsCompletedSuccessfully)
+                {
+                    if (_queue.TryDequeue(out var popped))
+                        popped.SetResult(true);
+                }
+                else if (timeoutTask?.IsCompletedSuccessfully == true)
+                {
+                    throw new TimeoutException();
+                }
             });
+
             return tcs.Task;
         }
 
@@ -43,5 +59,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         }
 
         public void Release() => _semaphore.Release();
+
+        public void Dispose() => _semaphore.Dispose();
     }
 }
