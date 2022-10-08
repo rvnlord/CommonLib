@@ -87,15 +87,15 @@ namespace CommonLib.Console
             var beforeOrWhole = "?keepPrompt=true".BeforeFirstOrWhole("?");
 
             var str = "testźąśąą3#^%#";
-            var toBase58 = str.UTF8ToBase58();
-            var fromBase58 = toBase58.Base58ToUTF8();
+            var toBase58 = str.UTF8ToByteArray().ToBase58StringLegacy();
+            var fromBase58 = toBase58.Base58ToByteArrayLegacy().ToUTF8String();
 
             System.Console.WriteLine(str);
             System.Console.WriteLine(toBase58);
             System.Console.WriteLine(fromBase58);
             
             toBase58 = str.UTF8ToByteArray().ToBase58String();
-            fromBase58 = toBase58.Base58ToByteArrayExperiment().ToUTF8String();
+            fromBase58 = toBase58.Base58ToByteArray().ToUTF8String();
 
             System.Console.WriteLine(str);
             System.Console.WriteLine(toBase58);
@@ -108,8 +108,8 @@ namespace CommonLib.Console
                 var originalString = "AaĄąBbCcĆćDdEeĘęFfGgHhIiJjKkLlMmNnOoÓóPpRrSsTtUuVvWwXxYyZzŹźŻż".RandomSubset(20).JoinAsString();
                 newBase58 = originalString.UTF8ToByteArray().ToBase58String();
                 oldBase58 = originalString.UTF8ToByteArray().ToBase58StringLegacy();
-                newBase58ToOriginal = newBase58.Base58ToByteArrayExperiment().ToUTF8String();
-                oldBase58ToOriginal = oldBase58.Base58ToByteArrayExperiment().ToUTF8String();
+                newBase58ToOriginal = newBase58.Base58ToByteArray().ToUTF8String();
+                oldBase58ToOriginal = oldBase58.Base58ToByteArrayLegacy().ToUTF8String();
                 System.Console.WriteLine($"{originalString}\n({oldBase58 == newBase58}) {newBase58} == {oldBase58}\n({oldBase58ToOriginal == newBase58ToOriginal}) {newBase58ToOriginal} == {oldBase58ToOriginal}");
             } while (oldBase58 == newBase58 && oldBase58ToOriginal == newBase58ToOriginal);
 
