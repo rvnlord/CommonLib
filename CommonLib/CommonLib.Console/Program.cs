@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Data.OleDb;
 using System.Linq;
 using System.Xml.Schema;
 using CommonLib.Source.Common.Converters;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
 using CommonLib.Source.Common.Utils;
+using MoreLinq;
 
 namespace CommonLib.Console
 {
@@ -63,33 +65,62 @@ namespace CommonLib.Console
 
             //var cipheredText = pt.UTF8ToByteArray()
             //    .EncryptECC(senderKeyPair.Private.ToECPrivateKeyByteArray(), receiverKeyPair.Public.ToECPublicKeyByteArray())
-            //    .ToBase58String();
+            //    .ToBase58StringLegacy();
 
             //var decryptedText = cipheredText.Base58ToByteArray()
             //    .DecryptECC(receiverKeyPair.Private.ToECPrivateKeyByteArray(), senderKeyPair.Public.ToECPublicKeyByteArray())
             //    .ToUTF8String();
             
-            var pt = "Long plain text";
-            var keyPair = CryptoUtils.GenerateECCKeyPair();
+            //var pt = "Long plain text";
+            //var keyPair = CryptoUtils.GenerateECCKeyPair();
 
-            var cipheredText = pt.UTF8ToByteArray()
-                .CompressGZip()
-                .EncryptECC(keyPair.Person1Private)
-                .ToBase58String();
+            //var cipheredText = pt.UTF8ToByteArray()
+            //    .CompressGZip()
+            //    .EncryptECC(keyPair.Person1Private)
+            //    .ToBase58StringLegacy();
 
-            var decryptedText = cipheredText.Base58ToByteArray()
-                .DecryptECC(keyPair.Person2Private)
-                .DecompressGZip()
-                .ToUTF8String();
+            //var decryptedText = cipheredText.Base58ToByteArray()
+            //    .DecryptECC(keyPair.Person2Private)
+            //    .DecompressGZip()
+            //    .ToUTF8String();
 
             var beforeOrWhole = "?keepPrompt=true".BeforeFirstOrWhole("?");
 
-            //System.Console.WriteLine($"1st priv key: {keyPair.Person1Private.ToBase58String()}");
-            //System.Console.WriteLine($"2nd priv key: {keyPair.Person2Private.ToBase58String()}");
+            var str = "testźąśąą3#^%#";
+            var toBase58 = str.UTF8ToBase58();
+            var fromBase58 = toBase58.Base58ToUTF8();
+
+            System.Console.WriteLine(str);
+            System.Console.WriteLine(toBase58);
+            System.Console.WriteLine(fromBase58);
+            
+            toBase58 = str.UTF8ToByteArray().ToBase58String();
+            fromBase58 = toBase58.Base58ToByteArrayExperiment().ToUTF8String();
+
+            System.Console.WriteLine(str);
+            System.Console.WriteLine(toBase58);
+            System.Console.WriteLine(fromBase58);
+
+            string oldBase58, newBase58, newBase58ToOriginal, oldBase58ToOriginal;
+
+            do
+            {
+                var originalString = "AaĄąBbCcĆćDdEeĘęFfGgHhIiJjKkLlMmNnOoÓóPpRrSsTtUuVvWwXxYyZzŹźŻż".RandomSubset(20).JoinAsString();
+                newBase58 = originalString.UTF8ToByteArray().ToBase58String();
+                oldBase58 = originalString.UTF8ToByteArray().ToBase58StringLegacy();
+                newBase58ToOriginal = newBase58.Base58ToByteArrayExperiment().ToUTF8String();
+                oldBase58ToOriginal = oldBase58.Base58ToByteArrayExperiment().ToUTF8String();
+                System.Console.WriteLine($"{originalString}\n({oldBase58 == newBase58}) {newBase58} == {oldBase58}\n({oldBase58ToOriginal == newBase58ToOriginal}) {newBase58ToOriginal} == {oldBase58ToOriginal}");
+            } while (oldBase58 == newBase58 && oldBase58ToOriginal == newBase58ToOriginal);
+
+            //System.Console.WriteLine($"1st priv key: {keyPair.Person1Private.ToBase58StringLegacy()}");
+            //System.Console.WriteLine($"2nd priv key: {keyPair.Person2Private.ToBase58StringLegacy()}");
             //System.Console.WriteLine($"plain text: {pt}");
-            //System.Console.WriteLine($"compressed plain text: {pt.UTF8ToByteArray().CompressGZip().ToBase58String()}");
+            //System.Console.WriteLine($"compressed plain text: {pt.UTF8ToByteArray().CompressGZip().ToBase58StringLegacy()}");
             //System.Console.WriteLine($"encrypted text: {cipheredText}");
             //System.Console.WriteLine($"decrypted text: {decryptedText}");
+
+            System.Console.ReadKey();
         }
     }
 

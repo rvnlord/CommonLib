@@ -4,18 +4,22 @@ using System.Linq;
 using System.Text;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
+using Google.Protobuf.WellKnownTypes;
 using Org.BouncyCastle.Math;
+using Tensorflow;
 using static CommonLib.Source.LibConfig;
 
 namespace CommonLib.Source.Common.Converters
 {
     public static class Base58Converter
     {
-        public static string HexToBase58(this string str) => str.HexToByteArray().ToBase58String();
-        public static string UTF8ToBase58(this string utf8str, bool throwIfInputIsAlreadyBase58 = true) => throwIfInputIsAlreadyBase58 && utf8str.IsBase58() ? throw new FormatException("Input is already a base58 string") : utf8str.UTF8ToByteArray().ToBase58String();
+        private const string _alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+
+        public static string HexToBase58(this string str) => str.HexToByteArray().ToBase58StringLegacy();
+        public static string UTF8ToBase58(this string utf8str, bool throwIfInputIsAlreadyBase58 = false) => throwIfInputIsAlreadyBase58 && utf8str.IsBase58() ? throw new FormatException("Input is already a base58 string") : utf8str.UTF8ToByteArray().ToBase58String();
         public static string Base58ToUTF8(this string base58) => base58.Base58ToByteArray().ToUTF8String();
-        
-        public static byte[] Base58ToByteArray(this string encoded)
+
+        public static byte[] Base58ToByteArrayLegacy(this string encoded)
         {
             if (encoded == null)
                 throw new ArgumentNullException(nameof(encoded));
@@ -69,7 +73,7 @@ namespace CommonLib.Source.Common.Converters
             return result;
         }
 
-        public static string ToBase58String(this byte[] data, int offset, int count)
+        public static string ToBase58StringLegacy(this byte[] data, int offset, int count)
         {
             var bn0 = BigInteger.Zero;
             var vchTmp = data.SafeSubarray(offset, count);
@@ -94,10 +98,69 @@ namespace CommonLib.Source.Common.Converters
             return new string(chars);
         }
 
-        public static string ToBase58String(this IEnumerable<byte> data)
+        public static string ToBase58String(this IEnumerable<byte> bytes)
+        {
+            var arrBytes = bytes.ToArray();
+            var d = new List<byte>();
+            var s = new StringBuilder();
+            var j = 0;
+            for (var i = 0; i < arrBytes.Length; i++)
+            {
+                j = 0;
+                int c = arrBytes[i];
+                if (c == 0 && (s.Length ^ i) == 0) 
+                    s.Append('1');
+
+                while (j < d.Count || c != 0)
+                {
+                    var n = j >= d.Count ? -1 : d[j];                  
+                    n = n > 0 ? n * 256 + c : c;     
+                    c = n / 58;             
+                    d.InsertOrUpdate(j, (byte)(n % 58));
+                    j++;
+                }
+            }
+
+            while (j-- > 0)
+                s.Append(_alphabet[d[j]]);
+
+            return s.ToString();
+        }
+
+        public static byte[] Base58ToByteArray(this string base58Str)
+        {
+            var d = new List<byte>();  
+            var b = new List<byte>();
+            var j = 0;
+            for (var i = 0; i < base58Str.Length; i++) 
+            {
+                j = 0;
+                var c = _alphabet.IndexOf(base58Str[i]);
+                if (c < 0)
+                    throw new ArgumentOutOfRangeException(nameof(c));
+                if (c == 0 && (b.Count ^ i) == 0) 
+                    b.Add(0);
+
+                while (j < d.Count || c != 0) 
+                {
+                    var n = j >= d.Count ? -1 : d[j];    
+                    n = n > 0 ? n * 58 + c : c;
+                    c = n >> 8;
+                    d.InsertOrUpdate(j, (byte)(n % 256));
+                    j++;
+                }
+            }
+
+            while (j-- > 0)
+                b.Add(d[j]);
+
+            return b.ToArray();
+        }
+        
+        public static string ToBase58StringLegacy(this IEnumerable<byte> data)
         {
             var arrData = data.ToArray();
-            return arrData.ToBase58String(0, arrData.Length);
+            return arrData.ToBase58StringLegacy(0, arrData.Length);
         }
 
         public static string Base58ToUTF8OrNull(this string base58str)

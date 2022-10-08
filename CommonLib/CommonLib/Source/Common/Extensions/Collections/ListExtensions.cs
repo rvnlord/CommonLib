@@ -189,5 +189,15 @@ namespace CommonLib.Source.Common.Extensions.Collections
 
         public static async Task AddRangeAsync<T>(this List<T> l, IEnumerable<T> range) => await Task.Run(() => l.AddRange(range));
 
+        public static List<T> InsertOrUpdate<T>(this List<T> list, int i, T value)
+        {
+            if (i < 0)
+                throw new ArgumentOutOfRangeException(nameof(i));
+            if (i >= list.Count)
+                list.Insert(i, value);
+            else
+                list[i] = value;
+            return list;
+        }
     }
 }
