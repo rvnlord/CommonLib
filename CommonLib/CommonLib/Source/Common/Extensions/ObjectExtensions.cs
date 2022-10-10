@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using CommonLib.Source.Common.Extensions.Collections;
@@ -131,5 +132,20 @@ namespace CommonLib.Source.Common.Extensions
         }
 
         public static string[] GetPropertyNames(this object o) => o.GetType().GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static).Select(p => p.Name).ToArray();
+
+        public static string GetDescriptionOrNull(this object o)
+        {
+            var attr = Attribute.GetCustomAttribute(o.GetType(), typeof(DescriptionAttribute)) as DescriptionAttribute;
+            return attr?.Description;
+        }
+
+        public static string GetPropertyDescriptionOrNull(this object model, string propertyName)
+        {
+            var pi = model.GetType().GetProperty(propertyName);
+            if (pi is null)
+                return null;
+            var attr = Attribute.GetCustomAttribute(pi, typeof(DescriptionAttribute)) as DescriptionAttribute;
+            return attr?.Description;
+        }
     }
 }
