@@ -244,6 +244,20 @@ namespace CommonLib.Source.Common.Utils
             await s.WriteAsync(text.UTF8ToByteArray());
             await s.DisposeAsync();
         }
+
+        public static void ReplaceAllBytes(string path, byte[] bytes)
+        {
+            using var s = new FileStream(path, FileMode.Create);
+            s.Write(bytes, 0, bytes.Length);
+            s.Dispose();
+        }
+
+        public static async Task ReplaceAllBytesAsync(string path, byte[] bytes)
+        {
+            await using var s = new FileStream(path, FileMode.Create);
+            await s.WriteAsync(bytes);
+            await s.DisposeAsync();
+        }
     }
     
     public enum RunType
