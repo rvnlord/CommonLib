@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using CommonLib.Source.Common.Converters;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
 using MoreLinq;
@@ -227,6 +228,20 @@ namespace CommonLib.Source.Common.Utils
         {
             await using var s = new FileStream(path, FileMode.Append);
             await s.WriteAsync(bytes);
+            await s.DisposeAsync();
+        }
+
+        public static void ReplaceAllText(string path, string text)
+        {
+            using var s = new FileStream(path, FileMode.Create);
+            s.Write(text.UTF8ToByteArray());
+            s.Dispose();
+        }
+
+        public static async Task ReplaceAllTextAsync(string path, string text)
+        {
+            await using var s = new FileStream(path, FileMode.Create);
+            await s.WriteAsync(text.UTF8ToByteArray());
             await s.DisposeAsync();
         }
     }
