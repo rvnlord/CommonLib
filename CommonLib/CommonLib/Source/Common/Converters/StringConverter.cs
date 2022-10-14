@@ -53,12 +53,14 @@ namespace CommonLib.Source.Common.Converters
             if (s == null)
                 return null;
 
+            var startsWithUnderScore = s.StartsWithInvariant("_");
             var words = s.Split(new[] { '-', '_' }, StringSplitOptions.RemoveEmptyEntries);
-
             var sb = new StringBuilder(words.Sum(x => x.Length));
 
             foreach (var word in words)
-                sb.Append(word[0].ToStringInvariant().ToUpperInvariant() + word.Substring(1));
+                sb.Append(string.Concat(word[0].ToStringInvariant().ToUpperInvariant(), word.AsSpan(1)));
+            if (startsWithUnderScore)
+                sb.Prepend('_');
 
             return sb.ToString();
         }
@@ -68,34 +70,28 @@ namespace CommonLib.Source.Common.Converters
             if (source is null) return null;
             if (source.Length == 0) return string.Empty;
 
-            var builder = new StringBuilder();
+            var sb = new StringBuilder();
 
             for (var i = 0; i < source.Length; i++)
             {
                 if (char.IsLower(source[i]) || char.IsPunctuation(source[i])) // if current char is already lowercase or puntuation like `/`
-                {
-                    builder.Append(source[i]);
-                }
+                    sb.Append(source[i]);
                 else if (i == 0 || char.IsPunctuation(source[i - 1])) // if current char is the first char or punctuation like `/`
-                {
-                    builder.Append(source[i].ToLowerInvariant());
-                }
+                    sb.Append(source[i].ToLowerInvariant());
                 else if (char.IsLower(source[i - 1])) // if current char is upper and previous char is lower
                 {
-                    builder.Append('-');
-                    builder.Append(source[i].ToLowerInvariant());
+                    sb.Append('-');
+                    sb.Append(source[i].ToLowerInvariant());
                 }
                 else if (i + 1 == source.Length || char.IsUpper(source[i + 1])) // if current char is upper and next char doesn't exist or is upper
-                {
-                    builder.Append(source[i].ToLowerInvariant());
-                }
+                    sb.Append(source[i].ToLowerInvariant());
                 else // if current char is upper and next char is lower
                 {
-                    builder.Append('-');
-                    builder.Append(source[i].ToLowerInvariant());
+                    sb.Append('-');
+                    sb.Append(source[i].ToLowerInvariant());
                 }
             }
-            return builder.ToString();
+            return sb.ToString();
         }
 
         public static string PascalCaseToCamelCase(this string s)
