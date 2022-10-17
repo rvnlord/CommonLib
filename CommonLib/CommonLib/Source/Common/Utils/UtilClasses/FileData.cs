@@ -13,5 +13,15 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public double Progress => (double)Position / (TotalSize?.SizeInBytes ?? ChunkSize.SizeInBytes) * 100;
         public string Name => Path?.AfterLast(@"\");
         public bool IsSelected { get; set; }
+        public UploadStatus Status { get; set; }
+    }
+
+    public enum UploadStatus
+    {
+        NotStarted,
+        Uploading,
+        Paused,
+        Finished,
+        Failed
     }
 }
