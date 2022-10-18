@@ -12,6 +12,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public long Position { get; set; }
         public double Progress => (double)Position / (TotalSize?.SizeInBytes ?? ChunkSize.SizeInBytes) * 100;
         public string Name => Path?.AfterLast(@"\");
+        public string Extension => Name?.AfterLastOrNull(".");
         public bool IsSelected { get; set; }
         public UploadStatus Status { get; set; }
     }
