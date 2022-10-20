@@ -30,7 +30,7 @@ namespace CommonLib.Source.Common.Extensions
             if (condition == null)
                 throw new ArgumentNullException(nameof(condition));
 
-            if (condition(o))
+            if (o is null || condition(o))
                 return (T) (object) null;
             return o;
         }
