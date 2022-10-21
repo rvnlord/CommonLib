@@ -31,6 +31,15 @@ namespace CommonLib.Source.Common.Converters
             return new Tuple<T, T>(arr.Length > 0 ? arr[0] : default, arr.Length > 1 ? arr[1] : default);
         }
 
+        public static Tuple<T, T, T> ToTupleOf3<T>(this IEnumerable<T> en)
+        {
+            var arr = en.ToArray();
+            if (arr.Length > 3)
+                throw new ArgumentOutOfRangeException(nameof(arr), "Outer enumerable must contain exactly 2 elements");
+
+            return new Tuple<T, T, T>(arr.Length > 0 ? arr[0] : default, arr.Length > 1 ? arr[1] : default, arr.Length > 2 ? arr[2] : default);
+        }
+
         public static KeyValuePair<T, T> ToKeyValuePair<T>(this IEnumerable<T> en)
         {
             var (k, v) = en.ToTupleOf2();
