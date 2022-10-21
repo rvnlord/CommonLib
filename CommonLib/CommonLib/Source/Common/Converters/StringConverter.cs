@@ -98,5 +98,24 @@ namespace CommonLib.Source.Common.Converters
         {
             return s.Take(1).ToLowerInvariant() + s.Skip(1);
         }
+
+        public static string PathToExtension(this string path) 
+        {
+            var nameWithExtension = path.PathToNameWithExtension();
+            var extIndex = nameWithExtension.LastIndexOfInvariant("."); // "-1" if not found, "0" if name startsWith "."
+            return extIndex < 1 ? "" : nameWithExtension[(extIndex + 1)..];
+        }
+
+        public static string PathToName(this string path)
+        {
+            var nameWithExtension = path.PathToNameWithExtension();
+            var extIndex = nameWithExtension.LastIndexOfInvariant(nameWithExtension.PathToExtension());
+            return extIndex == nameWithExtension.Length ? nameWithExtension : nameWithExtension[..(extIndex - 1)];
+        }
+
+        public static string PathToNameWithExtension(this string path) 
+        {
+            return path.Split("\\").Last().Split("/").Last();
+        }
     }
 }
