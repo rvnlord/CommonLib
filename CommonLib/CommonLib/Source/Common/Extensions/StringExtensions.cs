@@ -1231,5 +1231,7 @@ namespace CommonLib.Source.Common.Extensions
 
         public static string NullifyIfNullOrEmpty(this string s) => s.NullifyIf(str => str.IsNullOrEmpty());
         public static string NullifyIfNullOrWhiteSpace(this string s) => s.NullifyIf(str => str.IsNullOrWhiteSpace());
+
+        public static int LastIndexOfInvariant(this string s, string sub) => s.LastIndexOf(sub, StringComparison.InvariantCulture);
     }
 }
