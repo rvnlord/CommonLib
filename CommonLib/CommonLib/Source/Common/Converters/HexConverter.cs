@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using CommonLib.Source.Common.Extensions.Collections;
 using CommonLib.Source.Common.Utils;
 using CommonLib.Source.Common.Utils.TypeUtils;
 using MoreLinq;
@@ -35,32 +36,65 @@ namespace CommonLib.Source.Common.Converters
                 bytes = Array.Empty<byte>();
             else
             {
-                var string_length = str.Length;
-                var character_index = str.StartsWith("0x", StringComparison.Ordinal) ? 2 : 0;
-                var number_of_characters = string_length - character_index;
-                var add_leading_zero = false;
+                var strLength = str.Length;
+                var harIdx = str.StartsWith("0x", StringComparison.Ordinal) ? 2 : 0;
+                var noChars = strLength - harIdx;
+                var addLeadingZero = false;
 
-                if (0 != number_of_characters % 2)
+                if (0 != noChars % 2)
                 {
-                    add_leading_zero = true;
-                    number_of_characters += 1;
+                    addLeadingZero = true;
+                    noChars += 1;
                 }
 
-                bytes = new byte[number_of_characters / 2];
+                bytes = new byte[noChars / 2];
 
-                var write_index = 0;
-                if (add_leading_zero)
+                var writeidx = 0;
+                if (addLeadingZero)
                 {
-                    bytes[write_index++] = CharUtils.CharacterToByte(str[character_index], character_index);
-                    character_index += 1;
+                    bytes[writeidx++] = CharUtils.CharacterToByte(str[harIdx], harIdx);
+                    harIdx += 1;
                 }
 
-                for (var read_index = character_index; read_index < str.Length; read_index += 2)
+                for (var read_index = harIdx; read_index < str.Length; read_index += 2)
                 {
                     var upper = CharUtils.CharacterToByte(str[read_index], read_index, 4);
                     var lower = CharUtils.CharacterToByte(str[read_index + 1], read_index + 1);
 
-                    bytes[write_index++] = (byte)(upper | lower);
+                    bytes[writeidx++] = (byte)(upper | lower);
+                }
+            }
+
+            return bytes;
+        }
+
+        public static List<byte> HexToByteList(this string str)
+        {
+            List<byte> bytes;
+            if (string.IsNullOrEmpty(str))
+                bytes = Enumerable.Empty<byte>().ToList();
+            else
+            {
+                var strLength = str.Length;
+                var harIdx = str.StartsWith("0x", StringComparison.Ordinal) ? 2 : 0;
+                var noChars = strLength - harIdx;
+                var addLeadingZero = 0 != noChars % 2;
+
+                bytes = new List<byte>();
+
+                var write_index = 0;
+                if (addLeadingZero)
+                {
+                    bytes.InsertOrUpdate(write_index++, CharUtils.CharacterToByte(str[harIdx], harIdx));
+                    harIdx += 1;
+                }
+
+                for (var read_index = harIdx; read_index < str.Length; read_index += 2)
+                {
+                    var upper = CharUtils.CharacterToByte(str[read_index], read_index, 4);
+                    var lower = CharUtils.CharacterToByte(str[read_index + 1], read_index + 1);
+
+                    bytes.InsertOrUpdate(write_index++, (byte)(upper | lower));
                 }
             }
 

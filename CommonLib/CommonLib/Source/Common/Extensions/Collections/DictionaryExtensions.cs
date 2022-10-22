@@ -84,7 +84,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
                 dictionary.Add(key, value);
         }
 
-        public static IDictionary<TKey, TValue> AddIfNotExist<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value) where TValue : class
+        public static IDictionary<TKey, TValue> AddIfNotExists<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value) where TValue : class
         {
             if (dictionary == null)
                 throw new ArgumentNullException(nameof(dictionary));
@@ -98,9 +98,9 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return dictionary;
         }
 
-        public static TValue AddIfNotExistAndGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value) where TValue : class
+        public static TValue AddIfNotExistsAndGet<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key, TValue value) where TValue : class
         {
-            return dictionary.AddIfNotExist(key, value)[key];
+            return dictionary.AddIfNotExists(key, value)[key];
         }
 
         public static void AddIfNotNullAnd<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, bool? condition, TKey key, TValue value) where TValue : class

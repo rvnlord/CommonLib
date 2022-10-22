@@ -8,8 +8,6 @@ using CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization;
 using CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.JsonConverters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using static CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.CustomJsonSerializer;
 
 namespace CommonLib.Source.Common.Converters
 {
@@ -28,6 +26,9 @@ namespace CommonLib.Source.Common.Converters
             jSerializer.Converters.Add(new ExceptionJsonConverter());
             jSerializer.Converters.Add(new TypeJsonConverter());
             jSerializer.Converters.Add(new ExtendedTimeJsonConverter());
+            jSerializer.Converters.Add(new FileSizeJsonConverter());
+            jSerializer.Converters.Add(new FileDataJsonConverter());
+
             return jSerializer;
         }
 

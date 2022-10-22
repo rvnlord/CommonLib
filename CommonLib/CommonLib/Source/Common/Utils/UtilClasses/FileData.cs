@@ -17,7 +17,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public string DirectoryPath { get; set; }
         public bool IsSelected { get; set; }
         public UploadStatus Status { get; set; }
-        public string NameExtensionAndSize => $"{Name}.{Extension} ({TotalSize})";
+        public string NameWithExtension => $"{Name}.{Extension}";
+        public string NameExtensionAndSize => $"{NameWithExtension} ({TotalSize})";
     }
 
     public enum UploadStatus
