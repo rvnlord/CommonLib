@@ -6,20 +6,65 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
 {
     public class FileData : IEquatable<FileData>
     {
+        private UploadStatus _status;
+        private bool _isSelected;
+        private bool _prevIsSelected;
+        private UploadStatus _prevStatus;
+
         public long? TotalSizeInBytes { get; set; }
         public FileSize TotalSize => new (TotalSizeInBytes ?? 0);
         public FileSize ChunkSize => new (Data.Count);
         public string Path => PathUtils.Combine(PathSeparator.BSlash, DirectoryPath, Name, ".", Extension);
         public List<byte> Data { get; set; } = new();
         public long Position { get; set; }
-        public double Progress => (double)Position / (TotalSizeInBytes ?? ChunkSize.SizeInBytes) * 100;
+        public double Progress
+        {
+            get
+            {
+                var totalSize = TotalSizeInBytes ?? ChunkSize.SizeInBytes;
+                if (totalSize == 0)
+                    return 0;
+                return (double)Position / totalSize * 100;
+            }
+        }
+
         public string Name { get; set; }
         public string Extension { get; set; }
         public string DirectoryPath { get; set; }
-        public bool IsSelected { get; set; }
-        public UploadStatus Status { get; set; }
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _prevIsSelected = _isSelected;
+                _isSelected = value;
+                if (_isSelected != _prevIsSelected)
+                    OnStateChanging(_prevIsSelected, _isSelected);
+            }
+        }
+
+        public UploadStatus Status
+        {
+            get => _status;
+            set
+            {
+                _prevStatus = _status;
+                _status = value;
+                if (_status != _prevStatus)
+                    OnStateChanging(_prevStatus, _status);
+            }
+        }
+
         public string NameWithExtension => $"{Name}.{Extension}";
         public string NameExtensionAndSize => $"{NameWithExtension} ({TotalSize})";
+
+        public event MyEventHandler<FileData, FileDataStateChangedEventArgs> StateChanged;
+        protected void OnStateChanging(FileDataStateChangedEventArgs e) => StateChanged?.Invoke(this, e);
+        protected void OnStateChanging(StatePropertyKind property, OldAndNewValue<bool> isSelected, OldAndNewValue<UploadStatus> status) => OnStateChanging(new FileDataStateChangedEventArgs(property, isSelected, status));
+        protected void OnStateChanging(StatePropertyKind property, bool oldIsSelected, bool newIsSelected, UploadStatus oldStatus, UploadStatus newStatus) => OnStateChanging(new FileDataStateChangedEventArgs(property, new OldAndNewValue<bool>(oldIsSelected, newIsSelected), new OldAndNewValue<UploadStatus>(oldStatus, newStatus)));
+        protected void OnStateChanging(bool oldIsSelected, bool newIsSelected) => OnStateChanging(new FileDataStateChangedEventArgs(StatePropertyKind.IsSelected, new OldAndNewValue<bool>(oldIsSelected, newIsSelected), new OldAndNewValue<UploadStatus>(Status, Status)));
+        protected void OnStateChanging(UploadStatus oldStatus, UploadStatus newStatus) => OnStateChanging(new FileDataStateChangedEventArgs(StatePropertyKind.Status, new OldAndNewValue<bool>(IsSelected, IsSelected), new OldAndNewValue<UploadStatus>(oldStatus, newStatus)));
 
         public bool Equals(FileData other)
         {
@@ -49,6 +94,20 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public static bool operator !=(FileData left, FileData right) => !Equals(left, right);
     }
 
+    public class FileDataStateChangedEventArgs : EventArgs
+    {
+        public StatePropertyKind Property { get; }
+        public OldAndNewValue<bool> IsSelected { get; }
+        public OldAndNewValue<UploadStatus> Status { get; }
+
+        public FileDataStateChangedEventArgs(StatePropertyKind property, OldAndNewValue<bool> isSelected, OldAndNewValue<UploadStatus> status)
+        {
+            Property = property;
+            IsSelected = isSelected;
+            Status = status;
+        }
+    }
+    
     public enum UploadStatus
     {
         NotStarted,
@@ -56,5 +115,11 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         Paused,
         Finished,
         Failed
+    }
+
+    public enum StatePropertyKind
+    {
+        IsSelected,
+        Status
     }
 }

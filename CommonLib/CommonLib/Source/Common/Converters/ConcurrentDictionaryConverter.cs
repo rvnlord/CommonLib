@@ -1,6 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq;using CommonLib.Source.Common.Extensions.Collections;
 
 namespace CommonLib.Source.Common.Converters
 {
@@ -15,15 +15,13 @@ namespace CommonLib.Source.Common.Converters
 
         public static Dictionary<TKey, TValue> SafelyToDictionary<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> cdict)
         {
-            var i = 0;
             var dict = new Dictionary<TKey, TValue>();
-            while (i < cdict.Count)
+            for (var i = cdict.Count - 1; i >= 0; i--)
             {
                 var kvp = cdict.ElementAtOrDefault(i);
-                dict[kvp.Key] = kvp.Value;
-                i++;
+                if (kvp.Value is not null)
+                    dict[kvp.Key] = kvp.Value;
             }
-
             return dict;
         }
     }
