@@ -56,9 +56,16 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             }
         }
 
+        public bool IsPreAdded { get; set; }
+        public bool IsExtensionValid { get; set; }
+        public bool IsFileSizeValid { get; set; }
+        public bool ValidateUploadStatus { get; set; } = true;
+        public bool IsValid => IsFileSizeValid && IsExtensionValid && (!ValidateUploadStatus || Status == UploadStatus.Finished);
+
         public string NameWithExtension => $"{Name}.{Extension}";
         public string NameExtensionAndSize => $"{NameWithExtension} ({TotalSize})";
-
+        public static FileData Empty => new();
+       
         public event MyEventHandler<FileData, FileDataStateChangedEventArgs> StateChanged;
         protected void OnStateChanging(FileDataStateChangedEventArgs e) => StateChanged?.Invoke(this, e);
         protected void OnStateChanging(StatePropertyKind property, OldAndNewValue<bool> isSelected, OldAndNewValue<UploadStatus> status) => OnStateChanging(new FileDataStateChangedEventArgs(property, isSelected, status));
