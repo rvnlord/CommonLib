@@ -33,7 +33,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             _queue.Enqueue(tcs);
             
             var waitForSempahoreTask = _semaphore.WaitAsync();
-            var timeoutTask = Task.Delay(throwAfter ?? TimeSpan.FromSeconds(30));
+            var timeoutTask = Task.Delay(throwAfter ?? TimeSpan.FromSeconds(120));
             var waitForSemaphoreOrTimeoutTask = new List<Task> { waitForSempahoreTask, timeoutTask };
 
             Task.WhenAny(waitForSemaphoreOrTimeoutTask).ContinueWith(task =>

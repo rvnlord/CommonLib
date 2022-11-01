@@ -7,7 +7,7 @@ using CommonLib.Source.Common.Utils.TypeUtils;
 
 namespace CommonLib.Source.Common.Utils.UtilClasses
 {
-    public struct FileSize
+    public struct FileSize : IComparable<FileSize>
     {
         private static FileSizeSuffix[] _suffixes => EnumUtils.GetValues<FileSizeSuffix>().ToArray();
 
@@ -43,6 +43,16 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         }
 
         public override string ToString() => $"{Size} {Suffix}";
+
+        public int CompareTo(FileSize other) => SizeInBytes.CompareTo(other.SizeInBytes);
+        public bool IsGreaterThan(FileSize other) => CompareTo(other) > 0;
+        public bool IsGreaterThanOrEqual(FileSize other) => CompareTo(other) >= 0;
+        public bool IsLessThan(FileSize other) => CompareTo(other) < 0;
+        public bool IsLessThanOrEqual(FileSize other) => CompareTo(other) <= 0;
+        public static bool operator >(FileSize fs1, FileSize fs2) => fs1.IsGreaterThan(fs2);
+        public static bool operator <(FileSize fs1, FileSize fs2) => fs1.IsLessThan(fs2);
+        public static bool operator >=(FileSize fs1, FileSize fs2) => fs1.IsGreaterThanOrEqual(fs2);
+        public static bool operator <=(FileSize fs1, FileSize fs2) => fs1.IsLessThanOrEqual(fs2);
     }
 
     public enum FileSizeSuffix
