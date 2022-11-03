@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
+using ExCSS;
 using Tensorflow;
 
 namespace CommonLib.Source.Common.Extensions.Collections
@@ -96,6 +97,21 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return list2.Count;
         }
 
+        public static IList<T> AddRange<T>(this IList<T> list, IEnumerable<T> items)
+        {
+            foreach (var item in items)
+                list.Add(item);
+            return list;
+        }
+
+        public static IList<T> RemoveRange<T>(this IList<T> list, IEnumerable<T> items)
+        {
+            var arritems = items.ToArray();
+            for (var i = arritems.Length - 1; i >= 0; i--)
+                list.RemoveAt(list.IndexOf_(arritems[i]));
+            return list;
+        }
+
         public static void AddRange(this IList list, IEnumerable items)
         {
             if (list == null)
@@ -114,8 +130,9 @@ namespace CommonLib.Source.Common.Extensions.Collections
             if (items == null)
                 throw new ArgumentNullException(nameof(items));
 
-            foreach (var item in items.Cast<object>().ToArray())
-                list.RemoveAt(list.IndexOf_(item));
+            var arritems = items.Cast<object>().ToArray();
+            for (var i = arritems.Length - 1; i >= 0; i--)
+                list.RemoveAt(list.IndexOf_(arritems[i]));
         }
 
         public static void RemoveIfExists<T>(this List<T> list, T item)

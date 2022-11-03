@@ -65,7 +65,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public string NameWithExtension => $"{Name}.{Extension}";
         public string NameExtensionAndSize => $"{NameWithExtension} ({TotalSize})";
         public static FileData Empty => new();
-       
+        public FileData Self => this;
+
         public event MyEventHandler<FileData, FileDataStateChangedEventArgs> StateChanged;
         protected void OnStateChanging(FileDataStateChangedEventArgs e) => StateChanged?.Invoke(this, e);
         protected void OnStateChanging(StatePropertyKind property, OldAndNewValue<bool> isSelected, OldAndNewValue<UploadStatus> status) => OnStateChanging(new FileDataStateChangedEventArgs(property, isSelected, status));

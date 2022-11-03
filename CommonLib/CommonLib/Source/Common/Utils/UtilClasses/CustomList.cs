@@ -25,6 +25,12 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             IsReadOnly = isReadOnly;
         }
 
+        public CustomList(List<T> list, bool isReadOnly = false)
+        {
+            _customList = list;
+            IsReadOnly = isReadOnly;
+        }
+
         public IEnumerator<T> GetEnumerator()
         {
             return new CustomEnumerator<T>(_customList);
@@ -74,6 +80,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         {
             _customList.RemoveAt(index);
         }
+
+        public List<T> ToList => new(_customList);
 
         public override string ToString()
         {

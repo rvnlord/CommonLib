@@ -35,10 +35,8 @@ namespace CommonLib.Source.Common.Extensions
             return o;
         }
 
-        public static T[] ToArrayOfOne<T>(this T el)
-        {
-            return new T[] { el };
-        }
+        public static T[] ToArrayOfOne<T>(this T el) => new[] { el };
+        public static List<T> ToListOfOne<T>(this T el) => new() { el };
 
         public static IEnumerable<T> ConcatMany<T>(this T val, params IEnumerable<T>[] enums)
         {
