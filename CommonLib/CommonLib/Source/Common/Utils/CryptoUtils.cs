@@ -135,9 +135,9 @@ namespace CommonLib.Source.Common.Utils
             return sha256;
         }
 
-        public static string Sha3(this string value) => Sha3(value.UTF8ToByteArray()).ToHexString();
+        public static string Keccak256(this string value) => Keccak256(value.UTF8ToByteArray()).ToHexString();
 
-        public static byte[] Sha3(this byte[] value)
+        public static byte[] Keccak256(this byte[] value)
         {
 
             if (value == null)
@@ -150,12 +150,12 @@ namespace CommonLib.Source.Common.Utils
             return output;
         }
 
-        public static byte[] Sha3(this List<byte> value)
+        public static byte[] Keccak256(this List<byte> value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
-            return Sha3(value.ToArray());
+            return Keccak256(value.ToArray());
         }
 
         public static byte[] GenerateCamelliaKey()
