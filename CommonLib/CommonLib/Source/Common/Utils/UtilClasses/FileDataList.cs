@@ -6,7 +6,9 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
     {
         public FileDataList Self => this;
 
+        public FileDataList() : base(false) { }
         public FileDataList(bool isReadOnly = false) : base(isReadOnly) { }
         public FileDataList(List<FileData> list, bool isReadOnly = false) : base(list, isReadOnly) { }
+     
     }
 }
