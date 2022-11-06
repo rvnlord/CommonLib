@@ -19,7 +19,13 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             set => _customList[index] = value;
         }
 
-        public CustomList(bool isReadOnly = false)
+        public CustomList()
+        {
+            _customList = new List<T>();
+            IsReadOnly = false;
+        }
+
+        public CustomList(bool isReadOnly)
         {
             _customList = new List<T>();
             IsReadOnly = isReadOnly;
@@ -83,10 +89,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
 
         public List<T> ToList => new(_customList);
 
-        public override string ToString()
-        {
-            return _customList.ToString();
-        }
+        public override string ToString() => $"CustomList<{typeof(T).Name}> ({_customList.Count})";
     }
 
     public class CustomEnumerator<T> : IEnumerator<T>
