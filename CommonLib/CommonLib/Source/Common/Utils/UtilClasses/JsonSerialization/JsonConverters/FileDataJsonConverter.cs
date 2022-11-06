@@ -29,7 +29,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.JsonConver
                 [nameof(FileData.Position)] = fd.Position.ToString(),
                 [nameof(FileData.IsSelected)] = fd.IsSelected.ToString().ToLowerInvariant(),
                 [nameof(FileData.Status)] = fd.Status.EnumToString(),
-                [nameof(FileData.Data)] = fd.Data.ToHexString()
+                [nameof(FileData.Data)] = fd.Data?.ToHexString()
             };
 
             jFd.WriteTo(writer);
