@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CommonLib.Source.Common.Converters;
 using CommonLib.Source.Common.Extensions;
 
 namespace CommonLib.Source.Common.Utils.UtilClasses
@@ -31,6 +32,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public string Name { get; set; }
         public string Extension { get; set; }
         public string DirectoryPath { get; set; }
+        public ExtendedTime CreationTime { get; set; } = ExtendedTime.UtcNow;
 
         public bool IsSelected
         {
@@ -61,11 +63,12 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public bool IsFileSizeValid { get; set; }
         public bool ValidateUploadStatus { get; set; } = true;
         public bool IsValid => IsFileSizeValid && IsExtensionValid && (!ValidateUploadStatus || Status == UploadStatus.Finished);
-
         public string NameWithExtension => $"{Name}.{Extension}";
         public string NameExtensionAndSize => $"{NameWithExtension} ({TotalSize})";
         public static FileData Empty => new();
         public FileData Self => this;
+        public string ChunkHash => Data.Keccak256().ToHexString();
+        public string Hash => Data.Count == TotalSizeInBytes ? ChunkHash : null;
 
         public event MyEventHandler<FileData, FileDataStateChangedEventArgs> StateChanged;
         protected void OnStateChanging(FileDataStateChangedEventArgs e) => StateChanged?.Invoke(this, e);
