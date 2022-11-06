@@ -23,6 +23,11 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             return new DbContextOptionsBuilder<TContext>().UseSqlite(dbcs).Options;
         }
 
+        public static DbContextOptions<TContext> GetMSSQLDbContextOptions<TContext>(string csConfigName = "DBCS") where TContext : Microsoft.EntityFrameworkCore.DbContext
+        {
+            return new DbContextOptionsBuilder<TContext>().UseSqlServer(ConfigUtils.GetFromAppSettings().GetConnectionString(csConfigName)).Options;
+        }
+
         public class SQLiteDbContextFactory<TDbContext> : IDesignTimeDbContextFactory<TDbContext> where TDbContext : DbContext, new()
         { // this is called by Migrations, in turn it calls parameterless constructor which uses `base()` with the result of `GetSQLiteDbContextOptions()` as parameter
             public TDbContext CreateDbContext(string[] args) => new();
