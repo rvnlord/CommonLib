@@ -316,6 +316,12 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             return propertyValue;
         }
 
+        public static TProperty GetPropertyValue<TProperty>(this object model, string propertyName)
+        {
+            var (_, _, propertyValue, _) = GetModelAndPropertyInternal(model, propertyName);
+            return (TProperty) propertyValue;
+        }
+
         [SuppressMessage("Style", "IDE0060:Remove unused parameter", Justification = "extending object on purpose")]
         public static string GetPropertyDisplayName<TProperty>(this object model, Expression<Func<TProperty>> expr)
         {
