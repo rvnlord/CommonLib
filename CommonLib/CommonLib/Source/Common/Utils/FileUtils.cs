@@ -264,6 +264,20 @@ namespace CommonLib.Source.Common.Utils
             await s.WriteAsync(bytes);
             await s.DisposeAsync();
         }
+
+        public static void EmptyDir(string dirPath)
+        {
+            if (!Directory.Exists(dirPath))
+                return;
+
+            foreach(var fsi in new DirectoryInfo(dirPath).GetFileSystemInfos())
+            {
+                if (fsi is DirectoryInfo di)
+                    di.Delete(true);
+                else
+                    fsi.Delete();
+            }
+        }
     }
     
     public enum RunType
