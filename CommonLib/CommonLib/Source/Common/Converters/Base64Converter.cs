@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CommonLib.Source.Common.Converters
 {
@@ -6,6 +7,7 @@ namespace CommonLib.Source.Common.Converters
     {
         public static byte[] Base64ToByteArray(this string str) => Convert.FromBase64String(str);
         public static string ToBase64String(this byte[] arr) => Convert.ToBase64String(arr);
+        public static string ToBase64String(this List<byte> list) => Convert.ToBase64String(list.ToArray());
         public static string UTF8ToBase64(this string utf8str) => utf8str.UTF8ToByteArray().ToBase64String();
         public static string Base64ToUTF8(this string base64) => base64.Base64ToByteArray().ToUTF8String();
 
