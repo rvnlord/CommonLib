@@ -8,26 +8,6 @@ namespace CommonLib.Source.Common.Extensions.Collections
 {
     public static class ICollectionExtensions
     {
-        public static T[] IColToArray<T>(this ICollection<T> col)
-        {
-            if (col == null)
-                throw new ArgumentNullException(nameof(col));
-
-            var array = new T[col.Count];
-            col.CopyTo(array, 0);
-            return array;
-        }
-
-        public static object[] IColToArray(this ICollection col)
-        {
-            if (col == null)
-                throw new ArgumentNullException(nameof(col));
-
-            var array = new object[col.Count];
-            col.CopyTo(array, 0);
-            return array;
-        }
-
         public static int RemoveAll<T>(this ICollection<T> collection, Predicate<T> match)
         {
             if (collection == null)
