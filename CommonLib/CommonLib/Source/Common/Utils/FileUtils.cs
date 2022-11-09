@@ -23,16 +23,19 @@ namespace CommonLib.Source.Common.Utils
         public static string GetExecutingAssemblyDir() => Path.GetDirectoryName(GetExecutingAssemblyPath());
         public static string GetExecutingAssemblyPath() => Assembly.GetExecutingAssembly().Location;
         public static string GetSolutionFileName() => GetSolutionPath().Split(@"\").Last();
-        public static string GetSolutionDir() => Directory.GetParent(GetSolutionPath())?.FullName;
-        public static string GetSolutionPath()
+        public static string GetSolutionDir(string name = null) => Directory.GetParent(GetSolutionPath(name))?.FullName;
+        public static string GetSolutionPath(string name = null)
         {
+            if (name is not null && !name.ContainsIgnoreCase(".sln"))
+                name += ".sln";
             var currentDirPath = GetExecutingAssemblyDir();
             while (currentDirPath != null)
             {
-                var fileInCurrentDir = Directory.GetFiles(currentDirPath).Select(f => f.Split(@"\").Last()).ToArray();
-                var solutionFileName = fileInCurrentDir.SingleOrDefault(f => f.EndsWith(".sln", StringComparison.InvariantCultureIgnoreCase));
-                if (solutionFileName != null)
-                    return Path.Combine(currentDirPath, solutionFileName);
+                var filesFoundFromCurrentDir = Directory.GetFiles(currentDirPath, "*.sln", name is not null ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToArray();
+                var filesWithMatchingName = name is not null ? filesFoundFromCurrentDir.Where(f => f.PathToNameWithExtension().EqualsIgnoreCase(name)).ToArray() : filesFoundFromCurrentDir;
+                var solutionFileName = filesWithMatchingName.MaxBy_(f => new FileInfo(f).LastWriteTimeUtc).SingleOrDefault();
+                if (solutionFileName is not null)
+                    return solutionFileName;
 
                 currentDirPath = Directory.GetParent(currentDirPath)?.FullName;
             }
@@ -40,13 +43,13 @@ namespace CommonLib.Source.Common.Utils
             throw new FileNotFoundException("Cannot find solution file path");
         }
 
-        public static OrderedDictionary<string, string> GetProjectPaths()
+        public static OrderedDictionary<string, string> GetProjectPaths(string solutionName = null)
         {
             if (_projectPaths.Any())
                 return _projectPaths;
 
             var paths = new OrderedDictionary<string, string>();
-            var slnPath = GetSolutionPath();
+            var slnPath = GetSolutionPath(solutionName);
             var lines = File.ReadAllLines(slnPath);
 
             foreach (var line in lines)
@@ -78,6 +81,13 @@ namespace CommonLib.Source.Common.Utils
             var path = paths.Where(p => ns.StartsWith(p.Key)).MaxBy_(p => p.Key.Length).Single();
             return path.Value;
         }
+
+        public static string GetProjectPath(string ns, string solutionName = null)
+        {
+            var paths = GetProjectPaths(solutionName);
+            var path = paths.Where(p => ns.StartsWith(p.Key)).MaxBy_(p => p.Key.Length).Single();
+            return path.Value;
+        }
         
         public static string GetProjectDir<T>(bool useSolutionFile = true)
         {
@@ -85,6 +95,14 @@ namespace CommonLib.Source.Common.Utils
                 return GetProjectPath<T>().BeforeLast(@"\");
             
             return FindProjectDirByAssembly(Assembly.GetAssembly(typeof(T)));
+        }
+
+        public static string GetProjectDir(string ns, string solutionName = null, bool useSolutionFile = true)
+        {
+            if (useSolutionFile)
+                return GetProjectPath(ns, solutionName).BeforeLast(@"\");
+            
+            return FindProjectDirByAssembly(Assembly.Load(ns));
         }
 
         public static string GetEntryProjectDir(bool useSolutionFile = true)
