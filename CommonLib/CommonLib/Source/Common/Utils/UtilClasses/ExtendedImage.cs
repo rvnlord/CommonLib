@@ -1,9 +1,6 @@
-﻿using System;
+﻿using CommonLib.Source.Common.Converters;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Formats;
-using SixLabors.ImageSharp.Formats.Bmp;
-using SixLabors.ImageSharp.Formats.Jpeg;
-using SixLabors.ImageSharp.Formats.Png;
 
 namespace CommonLib.Source.Common.Utils.UtilClasses
 {
@@ -16,21 +13,20 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         {
             _image = image;
         }
-
-        public static ExtendedImage Load(string physicalPath)
+        
+        public ExtendedImage(Image image, IImageFormat format)
         {
-            var extendedImage = new ExtendedImage(Image.Load(physicalPath));
-            if (physicalPath.EndsWith(".png"))
-                extendedImage.Format = PngFormat.Instance;
-            else if (physicalPath.EndsWith(".jpg"))
-                extendedImage.Format = JpegFormat.Instance;
-            else if (physicalPath.EndsWith(".bmp"))
-                extendedImage.Format = BmpFormat.Instance;
-            else
-                throw new NotSupportedException();
-
-            return extendedImage;
+            _image = image;
+            Format = format;
         }
+
+        public ExtendedImage(Image image, string extension)
+        {
+            _image = image;
+            Format = extension.ExtensionToImageFormat();
+        }
+
+        public static ExtendedImage Load(string physicalPath) => new(Image.Load(physicalPath), physicalPath.PathToExtension().ExtensionToImageFormat());
 
         public string ToBase64DataUrl() => _image.ToBase64String(Format);
     }
