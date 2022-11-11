@@ -56,6 +56,15 @@ namespace CommonLib.Source.Common.Converters
             return (T)Enum.Parse(typeof(T), value.ToString().RemoveMany(" ", "-"), true);
         }
 
+        public static object ToEnum(this object value, Type enumType)
+        {
+            if (value is null)
+                throw new ArgumentNullException(nameof(value));
+
+            if (!enumType.IsEnum) throw new ArgumentException("T must be an Enum");
+            return Enum.Parse(enumType, value.ToString().RemoveMany(" ", "-"), true);
+        }
+
         public static T? ToEnumN<T>(this object value) where T : struct
         {
             if (value is null)
