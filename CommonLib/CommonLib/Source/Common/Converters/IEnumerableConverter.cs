@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -55,5 +56,15 @@ namespace CommonLib.Source.Common.Converters
                 list.AddRange(values.Select(value => new KeyValuePair<TKey, TValue>(key, value)));
             return list;
         }
+
+        public static T[] IEnToArray<T>(this IEnumerable en)
+        {
+            if (en == null)
+                throw new ArgumentNullException(nameof(en));
+            
+            return en.Cast<T>().ToArray();
+        }
+
+        public static object[] IEnToArray(this IEnumerable en) => en.IEnToArray<object>();
     }
 }
