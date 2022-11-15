@@ -28,6 +28,7 @@ namespace CommonLib.Source.Common.Converters
             jSerializer.Converters.Add(new ExtendedTimeJsonConverter());
             jSerializer.Converters.Add(new FileSizeJsonConverter());
             jSerializer.Converters.Add(new FileDataJsonConverter());
+            jSerializer.Converters.Add(new IconTypeJsonConverter());
 
             return jSerializer;
         }
