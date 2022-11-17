@@ -14,6 +14,8 @@ namespace CommonLib.Source.Common.Converters
 {
     public static class FileDataConverter
     {
+        private static readonly string[] _imgExtensions = { "jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "bmp", "gif", "ico", "webp", "svg" };
+
         public static FileData ToFileData(this FileInfo fi, bool loadFile = false)
         {
             return new FileData
@@ -36,12 +38,40 @@ namespace CommonLib.Source.Common.Converters
 
         public static string ToBase64ImageString(this FileData fd)
         {
-            if (!fd.Extension.In("jpg", "jpeg", "jpe", "jif", "jfif", "jfi", "png", "bmp", "gif", "ico", "webp", "svg"))
+            if (!fd.Extension.In(_imgExtensions))
                 throw new FormatException("This is not an image file");
 
             var format = fd.Extension.In("jpg", "jpeg", "jpe", "jif", "jfif", "jfi") ? "jpeg" : fd.Extension;
 
             return $"data:image/{format};base64,{fd.Data.ToBase64String()}";
+        }
+
+        public static bool IsBase64ImageString(this string base64Image) => base64Image.IsBase64() && base64Image.ToLowerInvariant().BetweenOrNull("data:image/", ";base64,")?.In(_imgExtensions) == true;
+
+        public static FileData Base64ImageStringToFileData(this string base64Image)
+        {
+            if (!base64Image.IsBase64ImageString())
+                throw new FormatException("This is not a vaslid base64 image string");
+
+            var data = base64Image.ToLowerInvariant().After(";base64,").Base64ToByteArray();
+            var extension = base64Image.ToLowerInvariant().Between("data:image/", ";base64,");
+
+            return new FileData
+            {
+                TotalSizeInBytes = data.Length,
+                Data = data.ToList(),
+                Position = 0,
+                Name = null,
+                Extension = extension,
+                DirectoryPath = null,
+                CreationTime = null,
+                IsSelected = false,
+                Status = UploadStatus.NotStarted,
+                IsPreAdded = false,
+                IsExtensionValid = false,
+                IsFileSizeValid = false,
+                ValidateUploadStatus = false
+            };
         }
 
         public static FileData PathToFileData(this string filePath, bool loadFile) => new FileInfo(filePath).ToFileData(loadFile);
