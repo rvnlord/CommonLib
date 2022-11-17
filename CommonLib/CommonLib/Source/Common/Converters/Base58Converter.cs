@@ -174,5 +174,13 @@ namespace CommonLib.Source.Common.Converters
                 return null;
             }
         }
+
+        public static bool IsBase58(this string str)
+        {
+            if (str == null)
+                throw new ArgumentNullException(nameof(str));
+
+            return str.All(c => PszBase58.ContainsInvariant(c));
+        }
     }
 }
