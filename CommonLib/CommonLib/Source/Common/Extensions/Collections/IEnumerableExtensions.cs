@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
+using CommonLib.Source.Common.Utils.UtilClasses;
 using MoreLinq;
 using Truncon.Collections;
 
@@ -314,7 +315,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static T FirstOrNull<T>(this IEnumerable<T> values, Func<T, bool> selector) where T : class
         {
             var arrValues = values as T[] ?? values.ToArray();
-            return arrValues.Any() ? arrValues.First(selector) : null;
+            return arrValues.FirstOrDefault(selector);
         }
 
         public static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> en)
@@ -476,6 +477,10 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static IEnumerable<TSource> Prepend_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Prepend(source, element);
         public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Append(source, element);
 
+        public static IEnumerable<TSource> AppendIfNotNull<TSource>(this IEnumerable<TSource> source, TSource element) => element is null ? source : source.Append_(element);
+        
         public static T Second<T>(this IEnumerable<T> en) => en.ElementAt(1);
+
+        public static IEnumerable<T> NullifyIfEmpty<T>(this IEnumerable<T> en) => en.NullifyIf(col => !col.Any());
     }
 }
