@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using CommonLib.Source.Common.Extensions;
@@ -62,6 +63,27 @@ namespace CommonLib.Source.Common.Converters
                 Data = data.ToList(),
                 Position = 0,
                 Name = null,
+                Extension = extension,
+                DirectoryPath = null,
+                CreationTime = null,
+                IsSelected = false,
+                Status = UploadStatus.NotStarted,
+                IsPreAdded = false,
+                IsExtensionValid = false,
+                IsFileSizeValid = false,
+                ValidateUploadStatus = false
+            };
+        }
+
+        public static FileData ToFileData(this IEnumerable<byte> bytes, string extension, string name)
+        {
+            var listBytes = bytes.ToList();
+            return new FileData
+            {
+                TotalSizeInBytes = listBytes.Count,
+                Data = listBytes,
+                Position = 0,
+                Name = name,
                 Extension = extension,
                 DirectoryPath = null,
                 CreationTime = null,
