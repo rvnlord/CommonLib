@@ -103,7 +103,7 @@ namespace CommonLib.Source.Common.Converters
         {
             var nameWithExtension = path.PathToNameWithExtension();
             var extIndex = nameWithExtension.LastIndexOfInvariant("."); // "-1" if not found, "0" if name startsWith "."
-            return extIndex < 1 ? "" : nameWithExtension[(extIndex + 1)..];
+            return extIndex < 1 ? "" : nameWithExtension[(extIndex + 1)..].ToLowerInvariant();
         }
 
         public static string PathToName(this string path)
