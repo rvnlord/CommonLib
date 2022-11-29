@@ -51,6 +51,8 @@ namespace CommonLib.Source.Common.Extensions
             return (T)src.GetType().GetField(fieldName, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)?.GetValue(src);
         }
 
+        public static object GetField(this object src, string fieldName) => src.GetField<object>(fieldName);
+
         public static T GetFieldByPartialName<T>(this object src, string fieldName)
         {
             if (src == null)
