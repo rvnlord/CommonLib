@@ -23,6 +23,11 @@ namespace CommonLib.Source.Common.Converters
             return (await (en ?? throw new NullReferenceException(nameof(en))).ConfigureAwait(false)).ToList();
         }
 
+        public static async Task<List<T>> ToListAsync<T>(this Task<IOrderedEnumerable<T>> en)
+        {
+            return (await (en ?? throw new NullReferenceException(nameof(en))).ConfigureAwait(false)).ToList();
+        }
+
         public static Tuple<T, T> ToTupleOf2<T>(this IEnumerable<T> en)
         {
             var arr = en.ToArray();
