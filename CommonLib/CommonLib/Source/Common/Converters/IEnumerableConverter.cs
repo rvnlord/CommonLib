@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CommonLib.Source.Common.Utils.UtilClasses;
 
 namespace CommonLib.Source.Common.Converters
 {
@@ -71,5 +72,7 @@ namespace CommonLib.Source.Common.Converters
         }
 
         public static object[] IEnToArray(this IEnumerable en) => en.IEnToArray<object>();
+
+        public static FileDataList ToFileDataList(this IEnumerable<FileData> en) => new(en.ToList());
     }
 }
