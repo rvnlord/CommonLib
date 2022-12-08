@@ -318,6 +318,14 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return arrValues.FirstOrDefault(selector);
         }
 
+        public static T SingleOrNull<T>(this IEnumerable<T> en) where T : class => en.DefaultIfEmpty(null).SingleOrDefault();
+
+        public static T SingleOrNull<T>(this IEnumerable<T> en, Func<T, bool> selector) where T : class
+        {
+            var arrValues = en as T[] ?? en.ToArray();
+            return arrValues.SingleOrDefault(selector);
+        }
+
         public static ObservableCollection<T> ToObservableCollection<T>(this IEnumerable<T> en)
         {
             return new ObservableCollection<T>(en);
@@ -474,6 +482,18 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this IEnumerable<TSource> source, Func<TSource, bool> selector) => await Task.Run(() => source.Where(selector));
         public static async Task<IEnumerable<TSource>> WhereAsync<TSource>(this Task<IEnumerable<TSource>> source, Func<TSource, bool> selector) => await (await source).WhereAsync(selector);
 
+        public static async Task<IEnumerable<TKey>> SelectAsync<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, Task<TKey>> selector)
+        {
+            var list = new List<TKey>();
+            foreach (var item in source)
+                list.Add(await selector(item));
+            return list;
+        }
+
+        public static async Task<IEnumerable<TKey>> SelectAsync<TSource, TKey>(this Task<IEnumerable<TSource>> source, Func<TSource, Task<TKey>> selector) => await (await source).SelectAsync(selector);
+
+        public static async Task<IOrderedEnumerable<TSource>> OrderByAsync<TSource, TKey>(this Task<IEnumerable<TSource>> source, Func<TSource, TKey> selector) => (await source).OrderBy(selector);
+        
         public static IEnumerable<TSource> Prepend_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Prepend(source, element);
         public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Append(source, element);
 
@@ -482,5 +502,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static T Second<T>(this IEnumerable<T> en) => en.ElementAt(1);
 
         public static IEnumerable<T> NullifyIfEmpty<T>(this IEnumerable<T> en) => en.NullifyIf(col => !col.Any());
+
+        public static IOrderedEnumerable<TSource> OrderBy<TSource>(this IEnumerable<TSource> en) => en.OrderBy(x => x);
     }
 }
