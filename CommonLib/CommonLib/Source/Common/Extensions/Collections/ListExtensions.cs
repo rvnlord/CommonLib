@@ -216,5 +216,8 @@ namespace CommonLib.Source.Common.Extensions.Collections
                 list[i] = value;
             return list;
         }
+
+        public static async Task<IEnumerable<TKey>> SelectAsync<TSource, TKey>(this Task<IList<TSource>> source, Func<TSource, Task<TKey>> selector) => await (await source).SelectAsync(selector);
+
     }
 }
