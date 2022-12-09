@@ -816,6 +816,8 @@ namespace CommonLib.Source.Common.Extensions
             return new string(str.AsEnumerable().TakeWhile(condition).ToArray());
         }
 
+        public static string TakeWhile_(this string str, Func<char, bool> condition) => str.TakeWhile(condition);
+
         public static string SkipWhileDigit(this string str)
         {
             return new string(str.AsEnumerable().SkipWhile(char.IsDigit).ToArray());
@@ -913,15 +915,7 @@ namespace CommonLib.Source.Common.Extensions
                 IPAddress.TryParse(str, out var address) &&
                 address.AddressFamily.In(AddressFamily.InterNetwork, AddressFamily.InterNetworkV6);
         }
-
-        public static bool IsBase58(this string str)
-        {
-            if (str == null)
-                throw new ArgumentNullException(nameof(str));
-
-            return str.All(c => PszBase58.ContainsInvariant(c));
-        }
-
+        
         public static string AddSpacesToPascalCase(this string text, bool wordsToLower = false, bool preserveAcronyms = true)
         {
             if (string.IsNullOrWhiteSpace(text))
@@ -1227,7 +1221,7 @@ namespace CommonLib.Source.Common.Extensions
         public static string IntersectOrNullIgnoreCase(this string s, string sub) => s.IntersectInternal(sub, NoValueType.Null, CaseType.IgnoreCase);
         public static string IntersectOrWholeIgnoreCase(this string s, string sub) => s.IntersectInternal(sub, NoValueType.Whole, CaseType.IgnoreCase);
 
-        public static bool IsEmailAddress(this string s) => Regex.IsMatch(s, @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$");
+        public static bool IsEmailAddress(this string s) => s is not null && Regex.IsMatch(s, @"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$");
 
         public static string NullifyIfNullOrEmpty(this string s) => s.NullifyIf(str => str.IsNullOrEmpty());
         public static string NullifyIfNullOrWhiteSpace(this string s) => s.NullifyIf(str => str.IsNullOrWhiteSpace());
