@@ -17,7 +17,7 @@ namespace CommonLib.Source.Common.Extensions
         public static bool EqualsAny<T>(this T o, IEnumerable<T> os)
         {
             var osArr = os.ToArray();
-            return osArr.Length > 0 && osArr.Any(s => s.Equals(o));
+            return osArr.Length > 0 && osArr.Any(s => s is null && o is null || (s is not null && o is not null && s.Equals(o)));
         }
         
         public static bool EqualsAll<T>(this T o, params T[] os)
