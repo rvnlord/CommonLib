@@ -54,13 +54,13 @@ namespace CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.JsonConver
             if (innerEx != null && className != null)
             {
                 var type = TypeUtils.TypeUtils.GetTypeByName(className);
-                var ctor = type.GetConstructor(new[] { typeof(string), typeof(Exception) });
+                var ctor = type?.GetConstructor(new[] { typeof(string), typeof(Exception) });
                 ex = ctor?.Invoke(new object[] { message, innerEx }) as Exception ?? ex;
             }
             else if (innerEx == null && className != null)
             {
                 var type = TypeUtils.TypeUtils.GetTypeByName(className);
-                var ctor = type.GetConstructor(new[] { typeof(string) });
+                var ctor = type?.GetConstructor(new[] { typeof(string) });
                 ex = ctor?.Invoke(new object[] { message }) as Exception ?? ex;
             }
 
