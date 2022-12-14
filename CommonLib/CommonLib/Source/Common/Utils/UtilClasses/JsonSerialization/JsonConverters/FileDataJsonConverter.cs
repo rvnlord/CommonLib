@@ -29,7 +29,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.JsonConver
                 [nameof(FileData.Position)] = fd.Position.ToString(),
                 [nameof(FileData.IsSelected)] = fd.IsSelected.ToString().ToLowerInvariant(),
                 [nameof(FileData.Status)] = fd.Status.EnumToString(),
-                [nameof(FileData.Data)] = fd.Data?.ToHexString()
+                [nameof(FileData.Data)] = fd.Data?.ToHexString(),
+                [nameof(FileData.DeclaredHash)] = fd.DeclaredHash
             };
 
             jFd.WriteTo(writer);
@@ -51,7 +52,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.JsonConver
                 Position = jFd[nameof(FileData.Position)].ToLong(),
                 IsSelected = jFd[nameof(FileData.IsSelected)].ToBool(),
                 Status = jFd[nameof(FileData.Status)].ToEnum<UploadStatus>(),
-                Data = jFd[nameof(FileData.Data)]?.ToString().HexToByteList()
+                Data = jFd[nameof(FileData.Data)]?.ToString().HexToByteList(),
+                DeclaredHash =  jFd[nameof(FileData.DeclaredHash)]?.ToString(),
             };
         }
     }
