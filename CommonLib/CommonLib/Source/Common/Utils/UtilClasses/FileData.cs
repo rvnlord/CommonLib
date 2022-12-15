@@ -62,13 +62,15 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public bool IsExtensionValid { get; set; }
         public bool IsFileSizeValid { get; set; }
         public bool ValidateUploadStatus { get; set; } = true;
-        public bool IsValid => IsFileSizeValid && IsExtensionValid && (!ValidateUploadStatus || Status == UploadStatus.Finished);
+        public bool IsValid => IsFileSizeValid && IsExtensionValid && (!ValidateUploadStatus || Status == UploadStatus.Finished) && !IsAlreadyInUse;
         public string NameWithExtension => $"{Name}.{Extension}";
         public string NameExtensionAndSize => $"{NameWithExtension} ({TotalSize})";
         public static FileData Empty => new();
         public FileData Self => this;
         public string ChunkHash => Data.Keccak256().ToHexString();
         public string Hash => Data.Count == TotalSizeInBytes ? ChunkHash : null;
+        public string DeclaredHash { get; set; }
+        public bool IsAlreadyInUse { get; set; }
 
         public event MyEventHandler<FileData, FileDataStateChangedEventArgs> StateChanged;
         protected void OnStateChanging(FileDataStateChangedEventArgs e) => StateChanged?.Invoke(this, e);
