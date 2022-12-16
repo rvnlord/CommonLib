@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CommonLib.Source.Common.Extensions;
 
 namespace CommonLib.Source.Common.Utils.UtilClasses
 {
-    public class OrderedSemaphore
+    public class OrderedSemaphore : IDisposable
     {
         private readonly SemaphoreSlim _semaphore;
         private readonly ConcurrentQueue<TaskCompletionSource<bool>> _queue = new();
 
         public int CurrentCount => _semaphore.CurrentCount;
+        public bool IsDisposed { get; private set; }
 
         public OrderedSemaphore(int initialCount)
         {
@@ -33,11 +32,14 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             _queue.Enqueue(tcs);
             
             var waitForSempahoreTask = _semaphore.WaitAsync();
-            var timeoutTask = Task.Delay(throwAfter ?? TimeSpan.FromSeconds(120));
+            var timeoutTask = Task.Delay(throwAfter ?? TimeSpan.FromSeconds(30));
             var waitForSemaphoreOrTimeoutTask = new List<Task> { waitForSempahoreTask, timeoutTask };
 
             Task.WhenAny(waitForSemaphoreOrTimeoutTask).ContinueWith(task =>
             {
+                if (IsDisposed)
+                    return;
+
                 if (waitForSempahoreTask.IsCompletedSuccessfully)
                 {
                     if (_queue.TryDequeue(out var popped))
@@ -60,6 +62,10 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
 
         public void Release() => _semaphore.Release();
 
-        public void Dispose() => _semaphore.Dispose();
+        public void Dispose()
+        {
+            IsDisposed = true;
+            _semaphore.Dispose();
+        }
     }
 }
