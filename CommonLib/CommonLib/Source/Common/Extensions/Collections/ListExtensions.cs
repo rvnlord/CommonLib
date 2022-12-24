@@ -106,6 +106,10 @@ namespace CommonLib.Source.Common.Extensions.Collections
 
         public static IList<T> RemoveRange<T>(this IList<T> list, IEnumerable<T> items)
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (list is Array) // this is wrong there are cases where ilist is an array
+                return list.Except(items).ToArray();
+
             var arritems = items.ToArray();
             for (var i = arritems.Length - 1; i >= 0; i--)
                 list.RemoveAt(list.IndexOf_(arritems[i]));
