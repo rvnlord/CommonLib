@@ -100,5 +100,15 @@ namespace CommonLib.Source.Common.Extensions
         public static IEnumerable<Type> GetImplementingTypes(this Type itype) 
             => AppDomain.CurrentDomain.GetAssemblies().SelectMany(s => s.GetTypes())
                 .Where(t => t.GetInterfaces().Contains(itype));
+
+        public static IEnumerable<Type> GetBaseTypes(this Type type)
+        {
+            var baseType = type.BaseType;
+            while (baseType is not null)
+            {
+                yield return baseType;
+                baseType = baseType.BaseType;
+            }
+        }
     }
 }
