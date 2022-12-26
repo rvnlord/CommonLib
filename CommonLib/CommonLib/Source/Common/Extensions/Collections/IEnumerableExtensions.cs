@@ -498,7 +498,16 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static IEnumerable<TSource> Append_<TSource>(this IEnumerable<TSource> source, TSource element) => MoreEnumerable.Append(source, element);
 
         public static IEnumerable<TSource> AppendIfNotNull<TSource>(this IEnumerable<TSource> source, TSource element) => element is null ? source : source.Append_(element);
-        
+
+        public static IEnumerable<TSource> AppendMany<TSource>(this IEnumerable<TSource> source, TSource firstElement, params TSource[] elements)
+        {
+            var listSource = source.ToList();
+            listSource.AddRange(elements.Prepend_(firstElement));
+            return listSource;
+        }
+
+        public static IEnumerable<TSource> Concat<TSource>(this IEnumerable<TSource> source, TSource firstElement, params TSource[] elements) => source.AppendMany(firstElement, elements);
+
         public static T Second<T>(this IEnumerable<T> en) => en.ElementAt(1);
 
         public static IEnumerable<T> NullifyIfEmpty<T>(this IEnumerable<T> en) => en.NullifyIf(col => !col.Any());
