@@ -10,15 +10,16 @@ namespace CommonLib.Source.Common.Converters
     {
         public static double? ToDoubleN(this object o)
         {
-            if (o == null) return null;
+            if (o is null) return null;
             if (o is bool) return Convert.ToDouble(o, CultureInfo.InvariantCulture);
+            var strD = o.ToStringInvariant()?.ReplaceInvariant(",", ".");
+            if (strD is null) return null;
 
-            var strD = o.ToStringInvariant().ReplaceInvariant(",", ".");
             var isNegative = strD.StartsWithInvariant("-");
             if (isNegative || strD.StartsWithInvariant("+"))
                 strD = strD.Skip(1);
 
-            var parsedVal = Double.TryParse(strD, NumberStyles.Any, CultureInfo.InvariantCulture, out var tmpvalue) ? tmpvalue : (double?)null;
+            var parsedVal = double.TryParse(strD, NumberStyles.Any, CultureInfo.InvariantCulture, out var tmpvalue) ? tmpvalue : (double?)null;
             if (isNegative)
                 parsedVal = -parsedVal;
             return parsedVal;
