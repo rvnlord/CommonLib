@@ -107,10 +107,9 @@ namespace CommonLib.Source.Common.Extensions
             return str.Split(new[] { end }, StringSplitOptions.None)[0];
         }
 
-        public static string RemoveHTMLSymbols(this string str)
+        public static string RemoveHTML(this string str)
         {
-            return str.ReplaceInvariant("&nbsp;", "")
-                .ReplaceInvariant("&amp;", "");
+            return str.ToHtmlAgility().InnerText.ReplaceInvariant("&nbsp;", "").ReplaceInvariant("&amp;", "").TrimMultiline();
         }
 
         public static bool IsNullWhiteSpaceOrDefault(this string str, string defVal)
