@@ -267,6 +267,7 @@
         Megaport,
         Mendeley,
         Meta,
+        Metamask,
         Microblog,
         Microsoft,
         Mix,
