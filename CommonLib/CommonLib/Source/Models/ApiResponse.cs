@@ -48,6 +48,39 @@ namespace CommonLib.Source.Models
             ResponseException = responseException;
             ValidationMessages = validationMessages;
         }
+
+        public ApiResponse(StatusCodeType statusCode, string message, Exception responseException)
+        {
+            StatusCode = statusCode;
+            Message = message;
+            ResponseException = responseException;
+        }
+
+        public ApiResponse(StatusCodeType statusCode, string message)
+        {
+            StatusCode = statusCode;
+            Message = message;
+        }
+
+        public ApiResponse(StatusCodeType statusCode, string message, T result)
+        {
+            StatusCode = statusCode;
+            Message = message;
+            Result = result;
+        }
+
+        public ApiResponse(T result)
+        {
+            StatusCode = StatusCodeType.Status200OK;
+            Result = result;
+        }
+
+        public ApiResponse(string message, T result)
+        {
+            StatusCode = StatusCodeType.Status200OK;
+            Result = result;
+            Message = message;
+        }
     }
 
     public enum StatusCodeType
@@ -55,11 +88,8 @@ namespace CommonLib.Source.Models
         Status100Continue = 100,
         Status412PreconditionFailed = 412,
         Status413PayloadTooLarge = 413,
-        Status413RequestEntityTooLarge = 413,
         Status414RequestUriTooLong = 414,
-        Status414UriTooLong = 414,
         Status415UnsupportedMediaType = 415,
-        Status416RangeNotSatisfiable = 416,
         Status416RequestedRangeNotSatisfiable = 416,
         Status417ExpectationFailed = 417,
         Status418ImATeapot = 418,
