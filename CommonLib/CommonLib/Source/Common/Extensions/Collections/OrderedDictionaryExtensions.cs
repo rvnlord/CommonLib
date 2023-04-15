@@ -83,5 +83,13 @@ namespace CommonLib.Source.Common.Extensions.Collections
                 dict[kvp.Key] = kvp.Value;
             return dict;
         }
+
+        public static OrderedDictionary<TKey, TValue> RemoveNulls<TKey, TValue>(this OrderedDictionary<TKey, TValue> dict)
+        {
+            if (dict is null)
+                throw new ArgumentNullException(nameof(dict));
+
+            return dict.Where(kvp => kvp.Value is not null).ToOrderedDictionary();
+        }
     }
 }
