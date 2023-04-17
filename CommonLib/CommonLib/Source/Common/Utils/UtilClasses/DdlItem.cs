@@ -16,4 +16,21 @@
             return $"{Index}, {Text}";
         }
     }
+
+    public class DdlItem<TValue>
+    {
+        public TValue Value { get; set; }
+        public string Text { get; set; }
+
+        public DdlItem(TValue value, string text)
+        {
+            Value = value;
+            Text = text;
+        }
+
+        public override string ToString()
+        {
+            return $"{Value}, {Text}";
+        }
+    }
 }
