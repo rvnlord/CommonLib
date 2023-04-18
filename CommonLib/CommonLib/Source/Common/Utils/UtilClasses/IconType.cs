@@ -6,8 +6,15 @@ using CommonLib.Source.Common.Extensions;
 
 namespace CommonLib.Source.Common.Utils.UtilClasses
 {
-    public class IconType
+    public class IconType : IEquatable<IconType>
     {
+        public bool Equals(IconType other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return RegularIcon == other.RegularIcon && LightIcon == other.LightIcon && SolidIcon == other.SolidIcon && BrandsIcon == other.BrandsIcon && DuotoneIcon == other.DuotoneIcon && ThinIcon == other.ThinIcon && SharpSolidIcon == other.SharpSolidIcon;
+        }
+        
         public RegularIconType? RegularIcon { get; private set; } // private set required for reflection
         public LightIconType? LightIcon { get; private set; }
         public SolidIconType? SolidIcon { get; private set; }
@@ -84,5 +91,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         }
 
         public override int GetHashCode() => HashCode.Combine(RegularIcon, LightIcon, SolidIcon, BrandsIcon, DuotoneIcon);
+
+        public static bool operator ==(IconType left, IconType right) => Equals(left, right);
+        public static bool operator !=(IconType left, IconType right) => !Equals(left, right);
     }
 }
