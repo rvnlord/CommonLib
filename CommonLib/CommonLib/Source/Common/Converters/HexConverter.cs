@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Net;
+using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
 using CommonLib.Source.Common.Utils;
 using CommonLib.Source.Common.Utils.TypeUtils;
@@ -106,6 +107,14 @@ namespace CommonLib.Source.Common.Converters
             return int.Parse(str, NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         }
 
+        public static byte HexToByte(this string str)
+        {
+            var hexToInt = str.HexToInt();
+            if (hexToInt is < 0 or > 255)
+                throw new FormatException("this is not a valid byte");
+            return (byte) hexToInt;
+        }
+
         public static string ToHexString(this IEnumerable<byte> value, bool prefix = false)
         {
             var strPrex = prefix ? "0x" : "";
@@ -146,6 +155,12 @@ namespace CommonLib.Source.Common.Converters
             return endian == Endian.LittleEndian
                 ? BitConverter.ToInt64(bytes)
                 : BitConverter.ToInt64(bytes.Reverse().ToArray());
+        }
+
+        public static bool IsHex(this string value)
+        {
+            var text = value.RemoveHexPrefix();
+            return text.All(c => c is >= '0' and <= '9' or >= 'a' and <= 'f' or >= 'A' and <= 'F');
         }
     }
 
