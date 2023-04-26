@@ -11,7 +11,7 @@ namespace CommonLib.Source.Common.Converters
             if (hexColor.IsNullOrWhiteSpace())
                 throw new NullReferenceException("hex color is empty");
             hexColor = hexColor.RemoveHexPrefix().RemoveHashPrefix();
-            if (!hexColor.IsHex() || hexColor.Length.In(6, 8))
+            if (!hexColor.IsHex() || !hexColor.Length.In(6, 8))
                 throw new FormatException("hex color has invalid format");
 
             var r = hexColor.Take(2).HexToByte();
