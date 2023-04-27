@@ -70,7 +70,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
 
         public SeleniumDriverManager OpenOrReuseDriver(bool headlessMode = false, bool reuse = true)
         {
-            if (_driver.WindowHandles.Count > 0) return this;
+            if (_driver?.WindowHandles.Count > 0) return this;
             if (reuse && _drivers.Any() && _drivers.Last().WindowHandles.Count > 0)
                 _driver = _drivers.Last();
             else
@@ -89,7 +89,8 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
                         "--silent-launch",
                         "--no-startup-window",
                         "headless",
-                        "--disable-dev-shm-usage"
+                        "--disable-dev-shm-usage",
+                        "--lang=en-US"
                     });
                     _chromeService.HideCommandPromptWindow = true;
                 }
@@ -98,7 +99,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
                     chromeOptions.AddArguments(new List<string>
                     {
                         "no-sandbox",
-                        //"--disable-dev-shm-usage"
+                        "--lang=en-US"
                     });
                 }
                     
@@ -128,6 +129,19 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         {
             _previousPage = _driver.Url;
             _driver.Navigate().GoToUrl(new Uri(address));
+        }
+
+        public void NavigateToAndWaitForUrl(string url) //, Action actionBeforeLoaded = null
+        {
+            _previousPage = _driver.Url;
+            try
+            {
+                _driver.Navigate().GoToUrl(new Uri(url));
+            }
+            catch (WebDriverTimeoutException)
+            { }
+            
+            Wait.Until(d => d.Url != _previousPage);
         }
 
         public void NavigateToAndStopWaitingForUrlAfter(string url, int dontWaitAfter) //, Action actionBeforeLoaded = null
@@ -308,5 +322,10 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             Dispose(true);
             GC.SuppressFinalize(this);
         }
+    }
+
+    public static class MyExpectedConditions
+    {
+        public static Func<IWebDriver, bool> PageFullyLoaded => driver => ((IJavaScriptExecutor)driver).ExecuteScript("return document.readyState").Equals("complete");
     }
 }
