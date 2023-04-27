@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using CommonLib.Source.Common.Converters;
 
@@ -13,6 +14,11 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
         {
             endian = BitUtils.GetEndianIfInherited(endian);
             return endian == Endian.LittleEndian ? ba : ba.Reverse().ToArray();
+        }
+
+        public static IEnumerable<byte> ReverseIfLittleEndian(this IEnumerable<byte> ba)
+        {
+            return !BitConverter.IsLittleEndian ? ba : ba.Reverse().ToArray();
         }
     }
 }
