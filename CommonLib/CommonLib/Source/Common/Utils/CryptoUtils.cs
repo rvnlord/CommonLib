@@ -3,9 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
 using CommonLib.Source.Common.Converters;
 using CommonLib.Source.Common.Cryptography;
+using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
+using CommonLib.Source.Common.Utils.TypeUtils;
+using CommonLib.Source.Common.Utils.UtilClasses;
+using Google.Protobuf.WellKnownTypes;
+using Keras.Layers;
+using MoreLinq;
+using NuGet.Packaging.Signing;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
@@ -13,12 +21,14 @@ using Org.BouncyCastle.Crypto.Agreement;
 using Org.BouncyCastle.Crypto.Agreement.Kdf;
 using Org.BouncyCastle.Crypto.Digests;
 using Org.BouncyCastle.Crypto.Generators;
+using Org.BouncyCastle.Crypto.Macs;
 using Org.BouncyCastle.Crypto.Modes;
 using Org.BouncyCastle.Crypto.Paddings;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
+using WebSocketSharp;
 using EthECDSASignature = CommonLib.Source.Common.Cryptography.EthECDSASignature;
 
 namespace CommonLib.Source.Common.Utils
@@ -127,6 +137,18 @@ namespace CommonLib.Source.Common.Utils
             return hmacsha256;
         }
 
+        public static byte[] SignHMACSha1(byte[] key, byte[] data)
+        {
+            var hmac = new HMac(new Sha1Digest());
+            var hashBytes = new byte[hmac.GetMacSize()];
+            hmac.Init(new KeyParameter(key));
+            hmac.BlockUpdate(data, 0, data.Length);
+            hmac.DoFinal(hashBytes, 0);
+            return hashBytes;
+        }
+
+        public static byte[] SignHMACSha1(this IEnumerable<byte> data, byte[] key) => SignHMACSha1(key, data.ToArray());
+
         public static byte[] Sha256(byte[] value)
         {
             var sha256Creator = SHA256.Create();
@@ -203,7 +225,7 @@ namespace CommonLib.Source.Common.Utils
             egH.GenerateBytes(symmetricKey, 0, symmetricKey.Length);
             return symmetricKey;
         }
-        
+
         private static byte[] EncryptDecryptECCWithKeyFromSharedSecret(Operation operation, byte[] keyFromSharedSecret, byte[] data)
         {
             //var keyParam = ParameterUtilities.CreateKeyParameter("DES", keyFromSharedSecret);
@@ -216,7 +238,7 @@ namespace CommonLib.Source.Common.Utils
 
         private static byte[] EncryptECCWithKeyFromSharedSecret(byte[] keyFromSharedSecret, byte[] plainData) => EncryptDecryptECCWithKeyFromSharedSecret(Operation.Encryption, keyFromSharedSecret, plainData);
         private static byte[] DecryptECCWithKeyFromSharedSecret(byte[] keyFromSharedSecret, byte[] cipheredData) => EncryptDecryptECCWithKeyFromSharedSecret(Operation.Decryption, keyFromSharedSecret, cipheredData);
-        
+
         public static byte[] EncryptECC(this byte[] plainData, byte[] senderPrivateKey, byte[] receiverPublicKey)
         {
             var privKey = senderPrivateKey.ECPrivateKeyByteArrayToECPrivateKey();
@@ -234,7 +256,7 @@ namespace CommonLib.Source.Common.Utils
             var decryptionKey = keyPair.GetECCSharedSecret().GetECCKeyFromSharedSecret();
             return DecryptECCWithKeyFromSharedSecret(decryptionKey, cipheredData);
         }
-        
+
         //SImplify ECC so priv key is sender ec priv + receiver ec pub and pub key is receiver ec priv + sender ec pub
         public static PrivateKeyPair GenerateECCKeyPair()
         {
@@ -257,6 +279,23 @@ namespace CommonLib.Source.Common.Utils
             var receiverPrivateKey = publicKey.Take(32).ToArray();
             var senderPublicKey = publicKey.Skip(32).ToArray();
             return cipheredData.DecryptECC(receiverPrivateKey, senderPublicKey);
+        }
+
+        public static string GenerateTOTPCode(string privKey, ExtendedTime timeStamp = null, int digits = 6, int intervalInSeconds = 30)
+        {
+            var counter = ((timeStamp?.Ticks ?? DateTimeOffset.UtcNow.Ticks) - 621355968000000000L) / 10000000 / intervalInSeconds;
+            var counterBytes = counter.ToByteArray(Endian.BigEndian);
+            var hashBytes = counterBytes.SignHMACSha1(privKey.Base32ToByteArray());
+            var offset = hashBytes[^1] & 0xF;
+            var codeBytes = ((hashBytes[offset] & 0x7F) << 24) | ((hashBytes[offset + 1] & 0xFF) << 16) | ((hashBytes[offset + 2] & 0xFF) << 8) | ((hashBytes[offset + 3] & 0xFF) % 1000000);
+            var code = (codeBytes % (int)Math.Pow(10.0, digits)).ToString().PadLeft(digits, '0');
+            return code;
+        }
+
+        public static bool ValidateTOTP(string privKey, string totpValue, ExtendedTime timeStamp = null, int digits = 6, int intervalInSeconds = 30)
+        {
+            var validCode = GenerateTOTPCode(privKey, timeStamp, digits, intervalInSeconds);
+            return validCode.EqualsIgnoreCase(totpValue);
         }
     }
 
