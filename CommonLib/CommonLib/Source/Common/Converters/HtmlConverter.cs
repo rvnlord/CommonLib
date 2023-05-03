@@ -1,6 +1,7 @@
 ﻿using System;
 using CommonLib.Source.Common.Extensions;
 using HtmlAgilityPack;
+using OpenQA.Selenium;
 
 namespace CommonLib.Source.Common.Converters
 {
@@ -18,6 +19,12 @@ namespace CommonLib.Source.Common.Converters
                 throw new ArgumentNullException(nameof(html));
 
             return html.OuterHtml;
+        }
+
+        public static HtmlNode ToHtmlAgility(this IWebElement we)
+        {
+            var outerHTML = we.GetAttribute("outerHTML");
+            return outerHTML.TrimMultiline().HTML().Root();
         }
     }
 }
