@@ -12,7 +12,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
     {
         public static TDbContext CreateSQLite<TDbContext>() where TDbContext : DbContext, new() => new SQLiteDbContextFactory<TDbContext>().CreateDbContext(Array.Empty<string>());
 
-        public static DbContextOptions<TContext> GetSQLiteDbContextOptions<TContext>(string csConfigName = "DBCS") where TContext : Microsoft.EntityFrameworkCore.DbContext
+        public static DbContextOptionsBuilder<TContext> GetSQLiteDbContextOptionsBuilder<TContext>(string csConfigName = "DBCS", string migrationAssembly = null, DbContextOptionsBuilder<TContext> b = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
         {
             // DBCS: "Data Source=.\\Database\\store.db"
             var dbcs = ConfigUtils.GetFromAppSettings().GetConnectionString(csConfigName);
@@ -20,13 +20,19 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
             dbcs = $"{dbcs.BeforeFirst("=")}={dbPath}";
             Directory.CreateDirectory(Path.GetDirectoryName(dbPath) ?? throw new NullReferenceException()); // SQLite provider has no access to creating folders so migration would crash
 
-            return new DbContextOptionsBuilder<TContext>().UseSqlite(dbcs).Options;
+            return (b ?? new DbContextOptionsBuilder<TContext>()).UseSqlite(dbcs, o => o.MigrationsAssembly(migrationAssembly ?? typeof(TContext).Assembly.FullName)).EnableSensitiveDataLogging();
         }
 
-        public static DbContextOptions<TContext> GetMSSQLDbContextOptions<TContext>(string csConfigName = "DBCS") where TContext : Microsoft.EntityFrameworkCore.DbContext
+        public static DbContextOptions<TContext> GetSQLiteDbContextOptions<TContext>(string csConfigName = "DBCS", string migrationAssembly = null, DbContextOptionsBuilder<TContext> b = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+            => GetSQLiteDbContextOptionsBuilder<TContext>(csConfigName, migrationAssembly, b).Options;
+        
+        public static DbContextOptionsBuilder<TContext> GetMSSQLDbContextBuilder<TContext>(string csConfigName = "DBCS", string migrationAssembly = null, DbContextOptionsBuilder<TContext> b = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
         {
-            return new DbContextOptionsBuilder<TContext>().UseSqlServer(ConfigUtils.GetFromAppSettings().GetConnectionString(csConfigName)).Options;
+            return (b ?? new DbContextOptionsBuilder<TContext>()).UseSqlServer(ConfigUtils.GetFromAppSettings().GetConnectionString(csConfigName), o => o.MigrationsAssembly(migrationAssembly ?? typeof(TContext).Assembly.FullName)).EnableSensitiveDataLogging();
         }
+
+        public static DbContextOptions<TContext> GetMSSQLDbContextOptions<TContext>(string csConfigName = "DBCS", string migrationAssembly = null, DbContextOptionsBuilder<TContext> b = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
+            => GetMSSQLDbContextBuilder<TContext>(csConfigName, migrationAssembly, b).Options;
 
         public class SQLiteDbContextFactory<TDbContext> : IDesignTimeDbContextFactory<TDbContext> where TDbContext : DbContext, new()
         { // this is called by Migrations, in turn it calls parameterless constructor which uses `base()` with the result of `GetSQLiteDbContextOptions()` as parameter
