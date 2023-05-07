@@ -31,6 +31,7 @@ namespace CommonLib.Source.Common.Converters
         }
 
         public static string ToBase64SafeUrlString(this byte[] b) => Convert.ToBase64String(b).TrimEnd(new[] { '=' }).Replace('+', '-').Replace('/', '_');
+        public static string ToBase64SafeUrlString(this IEnumerable<byte> b) => b.ToArray().ToBase64SafeUrlString();
         public static byte[] Base64SafeUrlToByteArray(this string s)
         {
             var result = s.Replace('_', '/').Replace('-', '+');
