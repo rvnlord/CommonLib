@@ -78,6 +78,16 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public static IconType From(ThinIconType thinIcon) => new IconType(thinIcon);
         public static IconType From(SharpSolidIconType sharpSolidIcon) => new IconType(sharpSolidIcon);
 
+        public static IconType From(string setName, string iconName)
+        {
+            var iconType = new IconType();
+            var iconEnums = typeof(IconType).GetProperties().Where(p => p.Name.EndsWithInvariant("Icon")).ToArray();
+            var propIconSetEnum = iconEnums.Single(e => e.PropertyType.EnsureNonNullable().Name.Before("IconType").EqualsIgnoreCase(setName));
+            var iconEnum = iconName.KebabCaseToPascalCase().ToEnum(propIconSetEnum.PropertyType.EnsureNonNullable());
+            propIconSetEnum.SetValue(iconType, iconEnum);
+            return iconType;
+        }
+
         public override string ToString()
         {
             return RegularIcon?.EnumToString() ?? LightIcon?.EnumToString() ?? SolidIcon?.EnumToString() ?? DuotoneIcon?.EnumToString() ?? BrandsIcon?.EnumToString() ?? ThinIcon?.EnumToString() ?? SharpSolidIcon?.EnumToString();
