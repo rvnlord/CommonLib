@@ -14,7 +14,7 @@ namespace CommonLib.Source.Common.Extensions
             {
                 return new ApiResponse<string>(await ethHostProvider.EnableProviderAsync());
             }
-            catch (Exception ex) when (ex is TaskCanceledException or ObjectDisposedException or RpcResponseException)
+            catch (Exception ex) // when (ex is TaskCanceledException or ObjectDisposedException or RpcResponseException)
             {
                 return new ApiResponse<string>(StatusCodeType.Status401Unauthorized, ex.Message, ex);
             }
