@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;using CommonLib.Source.Common.Extensions.Collections;
 
@@ -12,6 +13,8 @@ namespace CommonLib.Source.Common.Converters
         }
 
         public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> en) => new(en);
+
+        public static ConcurrentDictionary<TKey, TValue> ToConcurrentDictionary<TSource, TKey, TValue>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector) where TKey : notnull => source.ToDictionary(keySelector, valueSelector).ToConcurrentDictionary();
 
         public static Dictionary<TKey, TValue> SafelyToDictionary<TKey, TValue>(this ConcurrentDictionary<TKey, TValue> cdict)
         {
