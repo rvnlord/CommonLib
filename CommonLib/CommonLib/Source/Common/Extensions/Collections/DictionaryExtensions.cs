@@ -2,9 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using static CommonLib.Source.LibConfig;
 using static CommonLib.Source.Common.Utils.LockUtils;
+using static CommonLib.Source.Common.Converters.DictionaryConverter;
 
 namespace CommonLib.Source.Common.Extensions.Collections
 {
@@ -192,6 +192,14 @@ namespace CommonLib.Source.Common.Extensions.Collections
                 dict[key] = value;
 
             return dict;
+        }
+
+        public static Dictionary<TKey, TValue> RemoveNulls<TKey, TValue>(this Dictionary<TKey, TValue> dict)
+        {
+            if (dict is null)
+                throw new ArgumentNullException(nameof(dict));
+
+            return dict.Where(kvp => kvp.Value is not null).ToDictionary();
         }
     }
 }
