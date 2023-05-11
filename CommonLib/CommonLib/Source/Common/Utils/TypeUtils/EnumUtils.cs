@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CommonLib.Source.Common.Converters;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Utils.UtilClasses;
 
@@ -11,6 +12,11 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
         public static List<DdlItem> EnumToDdlItems<T>()
         {
             return Enum.GetValues(typeof(T)).Cast<int>().Select(i => new DdlItem(i, Enum.GetName(typeof(T), i)?.ReplaceInvariant("_", " ").Trim())).ToList();
+        }
+
+        public static List<DdlItem<TValue>> EnumToTypedDdlItems<TValue>()
+        {
+            return GetValues<TValue>().Select(v => new DdlItem<TValue>(v, v.EnumToString())).ToList();
         }
 
         public static List<DdlItem> EnumToDdlItems(this Type type)
@@ -41,6 +47,8 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
 
         public static IEnumerable<T> GetValuesOrNull<T>()
         {
+            if (!typeof(T).IsEnum)
+                return null;
             var type = typeof(T).EnsureNonNullable();
             return type == null ? null : Enum.GetValues(type).Cast<T>();
         }
