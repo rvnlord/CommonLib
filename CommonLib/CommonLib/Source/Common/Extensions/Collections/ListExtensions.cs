@@ -5,7 +5,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
 using ExCSS;
-using Tensorflow;
 
 namespace CommonLib.Source.Common.Extensions.Collections
 {
@@ -202,7 +201,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static List<T> AddIfNotExists<T>(this List<T> list, T el)
         {
             if (!list.Any(x => x.Equals(el)))
-                list.add(el);
+                list.Add(el);
             return list;
         }
 
