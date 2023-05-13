@@ -8,11 +8,14 @@ using CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization;
 using CommonLib.Source.Common.Utils.UtilClasses.JsonSerialization.JsonConverters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
 
 namespace CommonLib.Source.Common.Converters
 {
     public static class JsonConverter
     {
+        public static ITraceWriter SerializationLog { get; set; } = new MemoryTraceWriter();
+
         public static JsonSerializer JSerializer()
         {
             var jSerializer = new JsonSerializer
@@ -20,6 +23,7 @@ namespace CommonLib.Source.Common.Converters
                 Formatting = Formatting.Indented,
                 ReferenceLoopHandling = ReferenceLoopHandling.Serialize,
                 PreserveReferencesHandling = PreserveReferencesHandling.None,
+                TraceWriter = SerializationLog,
             };
             jSerializer.Converters.Add(new DecimalJsonConverter());
             jSerializer.Converters.Add(new LookupJsonConverter<string, string>());
@@ -29,7 +33,9 @@ namespace CommonLib.Source.Common.Converters
             jSerializer.Converters.Add(new FileSizeJsonConverter());
             jSerializer.Converters.Add(new FileDataJsonConverter());
             jSerializer.Converters.Add(new IconTypeJsonConverter());
-
+            //jSerializer.Converters.Add(new ListJsonConverter());
+            jSerializer.Converters.Add(new AuthenticationSchemeVMJsonConverter());
+           
             return jSerializer;
         }
 
@@ -77,23 +83,30 @@ namespace CommonLib.Source.Common.Converters
             T o;
             try
             {
-                o = !jToken.IsNullOrEmpty()
-                    ? jToken.ToObject<T>(JSerializer())
-                    : default;
+                // TODO: json conversion can't be typed because it will break in wasm as all types reflect to RuntimeType which will throw argument exception here in turn making i.e.: AuthenticationTypeScheme collection resolve to null breaking controls iteration in LoginBase
+                if (!jToken.IsNullOrEmpty())
+                    o = jToken.ToObject<T>(JSerializer());
+                else
+                    o = (T)(object)null;
             }
             catch (JsonSerializationException)
             {
                 return (T)(object)null;
             }
+            catch (ArgumentException ex)
+            {
+                string log = JsonConverter.SerializationLog.ToString();
+                throw;
+            }
 
-            if (o == null && typeof(T).IsIListType() && typeof(T).IsGenericType)
+            if (o is null && typeof(T).IsIListType() && typeof(T).IsGenericType)
             {
                 var elT = typeof(T).GetGenericArguments()[0];
                 var listType = typeof(List<>);
                 var constructedListType = listType.MakeGenericType(elT);
                 return (T)Activator.CreateInstance(constructedListType);
             }
-            if (o == null && typeof(T).IsIDictionaryType() && typeof(T).IsGenericType)
+            if (o is null && typeof(T).IsIDictionaryType() && typeof(T).IsGenericType)
             {
                 var keyT = typeof(T).GetGenericArguments()[0];
                 var valT = typeof(T).GetGenericArguments()[1];
