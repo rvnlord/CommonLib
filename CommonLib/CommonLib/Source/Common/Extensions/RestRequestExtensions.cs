@@ -11,7 +11,7 @@ namespace CommonLib.Source.Common.Extensions
             if (restRequest == null)
                 throw new ArgumentNullException(nameof(restRequest));
 
-            restRequest.Parameters.RemoveBy(x => x.Name == name);
+            restRequest.Parameters.RemoveBy(x => x.Name.EqualsInvariant(name));
         }
     }
 }
