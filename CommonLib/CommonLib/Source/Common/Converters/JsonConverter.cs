@@ -84,19 +84,11 @@ namespace CommonLib.Source.Common.Converters
             try
             {
                 // TODO: json conversion can't be typed because it will break in wasm as all types reflect to RuntimeType which will throw argument exception here in turn making i.e.: AuthenticationTypeScheme collection resolve to null breaking controls iteration in LoginBase
-                if (!jToken.IsNullOrEmpty())
-                    o = jToken.ToObject<T>(JSerializer());
-                else
-                    o = (T)(object)null;
+                o = !jToken.IsNullOrEmpty() ? jToken.ToObject<T>(JSerializer()) : (T)(object)null;
             }
             catch (JsonSerializationException)
             {
                 return (T)(object)null;
-            }
-            catch (ArgumentException ex)
-            {
-                string log = JsonConverter.SerializationLog.ToString();
-                throw;
             }
 
             if (o is null && typeof(T).IsIListType() && typeof(T).IsGenericType)
