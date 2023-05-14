@@ -152,19 +152,26 @@ namespace CommonLib.Source.Common.Extensions.Collections
             return source.Where(e => matches.Any(sel => Equals(sel, selector(e))));
         }
 
-        public static IEnumerable<TSource> OrderByWith<TSource, TResult>(this IEnumerable<TSource> en, Func<TSource, TResult> selector, IEnumerable<TResult> order)
+        public static IEnumerable<TSource> OrderByWith<TSource, TSelector>(this IEnumerable<TSource> en, Func<TSource, TSelector> selector, IEnumerable<TSelector> order, bool includeRestAsIs = true)
         {
-            return order.Select(el => en.Select(x => new { x, res = selector(x) }).Single(e => Equals(e.res, el)).x);
+            var orderArr = order.ToArray();
+            var enArr = en.ToArray();
+            var orderedElementsWithNulls = orderArr.Select(el => enArr.Select(x => new KeyValuePair<TSelector, TSource>(selector(x), x)).SingleOrDefault(e => typeof(TSelector) == typeof(string) ? (e.Key?.ToString()).EqualsIgnoreCase(el.ToString()) : Equals(e.Key, el))).ToList();
+            if (enArr.Length != orderArr.Length && !includeRestAsIs)
+                throw new ArgumentException($"{nameof(en)}.Count() != {nameof(order)}.Count()");
+            var dictOrderedElements = orderedElementsWithNulls.Where(el => el.Key is not null && el.Value is not null).ToOrderedDictionary();
+            var elements = dictOrderedElements.Values.ToList();
+            if (includeRestAsIs)
+            {
+                var remaining = enArr.Except(elements).ToArray();
+                elements.AddRange(remaining);
+            }
+
+            return elements;
         }
 
-        public static IEnumerable<T> OrderWith<T>(this IEnumerable<T> enumerable, IEnumerable<int> orderPattern)
-        {
-            var enArr = enumerable.ToArray();
-            var opArr = orderPattern.ToArray();
-            if (enArr.Length != opArr.Length)
-                throw new ArgumentException($"{nameof(enumerable)}.Count() != {nameof(orderPattern)}.Count()");
-            return opArr.Select(i => enArr[i]);
-        }
+        public static IEnumerable<T> OrderWith<T>(this IEnumerable<T> enumerable, IEnumerable<T> orderPattern, bool includeRestAsIs = true)
+            => enumerable.OrderByWith<T, T>(x => x, orderPattern, includeRestAsIs);
 
         public static IEnumerable<T> OrderByAnother<T, TProp>(this IEnumerable<T> en, Func<T, TProp> selector, IEnumerable<T> anotherEn)
         {
@@ -290,6 +297,11 @@ namespace CommonLib.Source.Common.Extensions.Collections
         public static bool ContainsAny(this IEnumerable<string> en1, params string[] en2)
         {
             return en1.ContainsAny(en2.AsEnumerable());
+        }
+
+        public static bool ContainsIgnoreCase(this IEnumerable<string> en, string str)
+        {
+            return en.Any(s => s.EqualsIgnoreCase(str));
         }
 
         public static bool CollectionEqual<T>(this IEnumerable<T> col1, IEnumerable<T> col2)
@@ -460,7 +472,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
 
         public static IEnumerable<T> RemoveNulls<T>(this IEnumerable<T> en)
         {
-            return en.Where(x => x != null);
+            return en.Where(x => x is not null);
         }
 
         public static IEnumerable<string> RemoveEmptyEntries(this IEnumerable<string> en)
