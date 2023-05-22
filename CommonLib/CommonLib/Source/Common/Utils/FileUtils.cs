@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CommonLib.Source.Common.Converters;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
+using Microsoft.Build.Construction;
 using MoreLinq;
 using Truncon.Collections;
 
@@ -43,19 +44,24 @@ namespace CommonLib.Source.Common.Utils
             throw new FileNotFoundException("Cannot find solution file path");
         }
 
-        public static OrderedDictionary<string, string> GetProjectPaths(string solutionName = null)
+        public static OrderedDictionary<string, string> GetProjectPaths(string solutionName = null, string[] projectExtensions = null)
         {
             if (_projectPaths.Any())
                 return _projectPaths;
-
+            
             var paths = new OrderedDictionary<string, string>();
             var slnPath = GetSolutionPath(solutionName);
             var lines = File.ReadAllLines(slnPath);
+            projectExtensions ??= new[] { ".csproj" };
 
             foreach (var line in lines)
             {
-                var lineArr = line.BetweenOrNull("}\") = \"", ".csproj\"")?.Split(", ");
-                if (lineArr == null)
+                string[] lineArr = null;
+                var i = 0;
+                while (lineArr is null && i < projectExtensions.Length)
+                    lineArr = line.BetweenOrNull("}\") = \"", $"{projectExtensions[i++]}\"")?.Split(", ");
+                
+                if (lineArr is null)
                     continue;
                 var projName = lineArr[0].BeforeFirst("\"");
                 var projPath = PathUtils.Combine(PathSeparator.BSlash, slnPath.BeforeLast(@"\"), lineArr[1].AfterFirst("\"").Append(".csproj"));
@@ -82,9 +88,9 @@ namespace CommonLib.Source.Common.Utils
             return path.Value;
         }
 
-        public static string GetProjectPath(string ns, string solutionName = null)
+        public static string GetProjectPath(string ns, string solutionName = null, string[] projectExtensions = null)
         {
-            var paths = GetProjectPaths(solutionName);
+            var paths = GetProjectPaths(solutionName, projectExtensions);
             var path = paths.Where(p => ns.StartsWith(p.Key)).MaxBy_(p => p.Key.Length).Single();
             return path.Value;
         }
@@ -97,10 +103,10 @@ namespace CommonLib.Source.Common.Utils
             return FindProjectDirByAssembly(Assembly.GetAssembly(typeof(T)));
         }
 
-        public static string GetProjectDir(string ns, string solutionName = null, bool useSolutionFile = true)
+        public static string GetProjectDir(string ns, string solutionName = null, bool useSolutionFile = true, string[] projectExtensions = null)
         {
             if (useSolutionFile)
-                return GetProjectPath(ns, solutionName).BeforeLast(@"\");
+                return GetProjectPath(ns, solutionName, projectExtensions).BeforeLast(@"\");
             
             return FindProjectDirByAssembly(Assembly.Load(ns));
         }
