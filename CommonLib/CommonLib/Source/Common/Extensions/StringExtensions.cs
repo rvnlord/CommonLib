@@ -795,6 +795,11 @@ namespace CommonLib.Source.Common.Extensions
             return value.StartsWithInvariant("0x") ? value.Skip(2) : value;
         }
 
+        public static string RemoveHashPrefix(this string value)
+        {
+            return value.StartsWithInvariant("#") ? value.Skip(1) : value;
+        }
+
         public static string EnforceHexPrefix(this string str)
         {
             return str.StartsWithInvariant("0x") ? str : $"0x{str}";
@@ -827,12 +832,21 @@ namespace CommonLib.Source.Common.Extensions
             return new string(str.AsEnumerable().TakeWhile(char.IsDigit).ToArray());
         }
 
-        public static string TrimMultiline(this string str)
+        public static string TrimMultiline(this string str, bool removeHTMLComments = true)
         {
             if (str == null)
                 throw new ArgumentNullException(nameof(str));
 
-            return str.Split(Environment.NewLine).Select(line => line.Trim()).JoinAsString().Trim();
+            var trimmed = str.Split(Environment.NewLine).Select(line => line.Trim()).JoinAsString().Trim();
+            return removeHTMLComments ? trimmed.RemoveHTMLComments() : trimmed;
+        }
+
+        public static string RemoveHTMLComments(this string str)
+        {
+            if (str == null)
+                throw new ArgumentNullException(nameof(str));
+
+            return Regex.Replace(str, "<!--.*?-->", string.Empty , RegexOptions.Singleline);;
         }
 
         public static HtmlDocument HTML(this string html)
@@ -845,13 +859,15 @@ namespace CommonLib.Source.Common.Extensions
         public static bool IsHTML(this string strHtml)
         {
             var docHtml = strHtml.HTML();
-            return !docHtml.ParseErrors.Any() && docHtml.Root().Descendants().Any(n => n.NodeType != HtmlNodeType.Text);
+            return !docHtml.ParseErrors.Any() && docHtml.Root().Descendants().Where(n => n.NodeType == HtmlNodeType.Text).All(n => n.Ancestors().Any(nn => nn.NodeType != HtmlNodeType.Document));
         }
 
         public static bool EqualsIgnoreCase(this string str, string ostr)
         {
             return string.Equals(str, ostr, StringComparison.InvariantCultureIgnoreCase);
         }
+
+        public static bool EqualsIgnoreCase_(this string str, string ostr) => str.EqualsIgnoreCase(ostr);
 
         public static bool EqAnyIgnoreCase(this string str, params string[] os)
         {
@@ -1226,5 +1242,14 @@ namespace CommonLib.Source.Common.Extensions
         public static string NullifyIfNullOrWhiteSpace(this string s) => s.NullifyIf(str => str.IsNullOrWhiteSpace());
 
         public static int LastIndexOfInvariant(this string s, string sub) => s.LastIndexOf(sub, StringComparison.InvariantCulture);
+
+        public static bool InIgnoreCase(this string o, IEnumerable<string> os)
+        {
+            var isImplementingIenumerable = o.IsIEnumerable();
+            if (isImplementingIenumerable)
+                throw new ArgumentException("You can't use `In()` with `T` being a collection, did you mean to use `AllIn()` or `AnyIn()`?");
+            
+            return o.ToLowerInvariant().EqualsAny(os.Select(o => o.ToLowerInvariant()));
+        }
     }
 }
