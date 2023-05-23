@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using AutoMapper;
 using CommonLib.Source.Common.Extensions.Collections;
 using CommonLib.Source.Common.Utils;
@@ -53,7 +55,7 @@ namespace CommonLib.Source.Common.Extensions
             
             return o.EqualsAny(os);
         }
-
+        
         public static bool IsIEnumerable<T>(this T _) => typeof(T) != typeof(string) && typeof(T).GetInterfaces().Any(i => i.Name.ContainsInvariant("IEnumerable"));
 
         public static bool AllIn<T>(this IEnumerable<T> en, IEnumerable<T> os)
@@ -103,6 +105,21 @@ namespace CommonLib.Source.Common.Extensions
             if (!OperatingSystem.IsWindowsVersionAtLeast(7))
                 throw new PlatformNotSupportedException();
             return o;
+        }
+
+        public static TSource Nullify<TSource, TProperty>(this TSource src, Expression<Func<TSource, TProperty>> prop)
+        {
+            if (src is null)
+                throw new ArgumentNullException(nameof(src));
+            if (prop is null)
+                throw new ArgumentNullException(nameof(prop));
+            if (prop.Body is not MemberExpression memberExpression)
+                throw new ArgumentException("Invalid expression", nameof(prop));
+            if (memberExpression.Member is not PropertyInfo pi)
+                throw new ArgumentException("Invalid expression", nameof(prop));
+        
+            pi.SetValue(src, null);
+            return src;
         }
     }
 }
