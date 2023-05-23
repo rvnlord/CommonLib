@@ -406,14 +406,24 @@ namespace CommonLib.Source.Common.Extensions
             return strEn.Aggregate(str, (current, s) => current.ReplaceInvariant(s, replacement));
         }
 
-        public static string TrimEnd(this string str, string end)
+        public static string TrimStart(this string str, string start, int? trimLength = null)
         {
-            if (str == null)
+            if (str is null)
                 throw new ArgumentNullException(nameof(str));
-            if (end == null)
+            if (start is null)
+                throw new ArgumentNullException(nameof(start));
+
+            return str.StartsWithInvariant(start) ? str[(trimLength ?? start.Length)..] : str;
+        }
+
+        public static string TrimEnd(this string str, string end, int? trimLength = null)
+        {
+            if (str is null)
+                throw new ArgumentNullException(nameof(str));
+            if (end is null)
                 throw new ArgumentNullException(nameof(end));
 
-            return str.EndsWithInvariant(end) ? str.Substring(0, str.Length - end.Length) : str;
+            return str.EndsWithInvariant(end) ? str[..^(trimLength ?? end.Length)] : str;
         }
 
         public static bool ContainsOnlyDigits(this string str) => str.All(c => c is >= '0' and <= '9');
