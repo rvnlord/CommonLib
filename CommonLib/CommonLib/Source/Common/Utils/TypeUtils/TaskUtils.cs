@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using CommonLib.Source.Common.Converters;
 
 namespace CommonLib.Source.Common.Utils.TypeUtils
 {
@@ -13,7 +14,7 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
         /// <param name="timeout">Timeout in milliseconds.</param>
         /// <exception cref="TimeoutException"></exception>
         /// <returns></returns>
-        public static async Task WaitWhile(Func<bool> condition, int frequency = 25, int timeout = -1)
+        public static async Task WaitWhileAsync(Func<bool> condition, int frequency = 25, int timeout = -1)
         {
             var waitTask = Task.Run(async () =>
             {
@@ -32,7 +33,7 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
         /// <param name="frequency">The frequency at which the condition will be checked.</param>
         /// <param name="timeout">The timeout in milliseconds.</param>
         /// <returns></returns>
-        public static async Task WaitUntil(Func<bool> condition, int frequency = 25, int timeout = -1)
+        public static async Task WaitUntilAsync(Func<bool> condition, int frequency = 25, int timeout = -1)
         {
             var waitTask = Task.Run(async () =>
             {
@@ -43,5 +44,7 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
             if (waitTask != await Task.WhenAny(waitTask, Task.Delay(timeout)).ConfigureAwait(false))
                 throw new TimeoutException();
         }
+
+        public static Task WaitUntilAsync(Func<bool> condition, int frequency, TimeSpan timeout) => WaitUntilAsync(condition, frequency, timeout.TotalMilliseconds.ToInt());
     }
 }
