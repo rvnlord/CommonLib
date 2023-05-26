@@ -10,7 +10,6 @@ using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
 using CommonLib.Source.Common.Utils.TypeUtils;
 using CommonLib.Source.Common.Utils.UtilClasses;
-using Google.Protobuf.WellKnownTypes;
 using Keras.Layers;
 using MoreLinq;
 using NuGet.Packaging.Signing;
@@ -149,13 +148,15 @@ namespace CommonLib.Source.Common.Utils
 
         public static byte[] SignHMACSha1(this IEnumerable<byte> data, byte[] key) => SignHMACSha1(key, data.ToArray());
 
-        public static byte[] Sha256(byte[] value)
+        public static byte[] Sha256_(this byte[] value)
         {
             var sha256Creator = SHA256.Create();
             var sha256 = sha256Creator.ComputeHash(value);
             sha256Creator.Dispose();
             return sha256;
         }
+
+        public static byte[] Sha256(byte[] value) => value.Sha256_();
 
         public static string Keccak256(this string value) => Keccak256(value.UTF8ToByteArray()).ToHexString();
 
@@ -186,7 +187,7 @@ namespace CommonLib.Source.Common.Utils
             var genParam = new KeyGenerationParameters(random, 256);
             var kGen = GeneratorUtilities.GetKeyGenerator("CAMELLIA");
             kGen.Init(genParam);
-            return kGen.GenerateKey(); ;
+            return kGen.GenerateKey();
         }
 
         public static byte[] EncryptCamellia(this byte[] data, byte[] key)
