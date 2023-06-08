@@ -6,6 +6,7 @@ using System.Reflection;
 using AutoMapper;
 using CommonLib.Source.Common.Extensions.Collections;
 using CommonLib.Source.Common.Utils;
+using ExCSS;
 
 namespace CommonLib.Source.Common.Extensions
 {
@@ -121,5 +122,13 @@ namespace CommonLib.Source.Common.Extensions
             pi.SetValue(src, null);
             return src;
         }
+
+        public static TSource InitIfNull<TSource>(this TSource src, TSource newT) where TSource : class, new()
+        {
+            src ??= newT;
+            return src;
+        }
+
+        public static TSource InitIfNull<TSource>(this TSource src) where TSource : class, new() => src.InitIfNull(default);
     }
 }
