@@ -71,7 +71,7 @@ namespace CommonLib.Source.Common.Converters
             jSerializer.ContractResolver = new ConditionalJsonContractResolver(() => jsonWriter.CurrentDepth <= depth);
             jSerializer.Serialize(jsonWriter, o);
             jsonWriter.Close();
-            return JToken.Parse(strWriter.ToString().Remove(@"\").TrimStart("\"{", 1).TrimEnd("}\"", 1)).RemoveEmptyDescendants().ToString(Formatting.Indented, jSerializer.Converters.ToArray());
+            return JToken.Parse(strWriter.ToString().RegexRemove(@"(?<!\\)(\\)(?![""])").TrimStart("\"{", 1).TrimEnd("}\"", 1)).RemoveEmptyDescendants().ToString(Formatting.Indented, jSerializer.Converters.ToArray());
         }
 
         public static JToken ToJToken(this object o, int depth = 10) => JToken.Parse(o.JsonSerialize(depth));
