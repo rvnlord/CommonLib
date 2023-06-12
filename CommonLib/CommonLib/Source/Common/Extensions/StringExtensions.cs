@@ -378,6 +378,8 @@ namespace CommonLib.Source.Common.Extensions
             return Regex.Replace(str, pattern, replacement);
         }
 
+        public static string RegexRemove(this string str, string pattern) => str.RegexReplace(pattern, "");
+
         public static string ReplaceLast(this string str, string fromStr, string toStr)
         {
             if (str == null)
