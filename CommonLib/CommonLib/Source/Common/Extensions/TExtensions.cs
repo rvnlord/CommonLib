@@ -125,7 +125,7 @@ namespace CommonLib.Source.Common.Extensions
 
         public static TSource InitIfNull<TSource>(this TSource src, TSource newT) where TSource : class, new()
         {
-            src ??= newT;
+            src ??= newT ?? new TSource();
             return src;
         }
 
