@@ -34,7 +34,7 @@ namespace CommonLib.Source.Common.Utils
             {
                 var filesFoundFromCurrentDir = Directory.GetFiles(currentDirPath, "*.sln", name is not null ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly).ToArray();
                 var filesWithMatchingName = name is not null ? filesFoundFromCurrentDir.Where(f => f.PathToNameWithExtension().EqualsIgnoreCase(name)).ToArray() : filesFoundFromCurrentDir;
-                var solutionFileName = filesWithMatchingName.MaxBy_(f => new FileInfo(f).LastWriteTimeUtc).SingleOrDefault();
+                var solutionFileName = filesWithMatchingName.Where(f => !f.ContainsAny("— kopia", "— copy")).MaxBy_(f => new FileInfo(f).LastWriteTimeUtc).SingleOrDefault();
                 if (solutionFileName is not null)
                     return solutionFileName;
 
