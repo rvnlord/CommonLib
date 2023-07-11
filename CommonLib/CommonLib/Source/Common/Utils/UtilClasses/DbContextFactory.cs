@@ -10,7 +10,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
 {
     public static class DbContextFactory
     {
-        public static TDbContext CreateSQLite<TDbContext>() where TDbContext : DbContext, new() => new SQLiteDbContextFactory<TDbContext>().CreateDbContext(Array.Empty<string>());
+        public static TDbContext CreateSQLite<TDbContext>() where TDbContext : DbContext, new() => new DefaultDbContextFactory<TDbContext>().CreateDbContext(Array.Empty<string>());
 
         public static DbContextOptionsBuilder<TContext> GetSQLiteDbContextOptionsBuilder<TContext>(string csConfigName = "DBCS", string migrationAssembly = null, DbContextOptionsBuilder<TContext> b = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
         {
@@ -34,7 +34,7 @@ namespace CommonLib.Source.Common.Utils.UtilClasses
         public static DbContextOptions<TContext> GetMSSQLDbContextOptions<TContext>(string csConfigName = "DBCS", string migrationAssembly = null, DbContextOptionsBuilder<TContext> b = null) where TContext : Microsoft.EntityFrameworkCore.DbContext
             => GetMSSQLDbContextBuilder<TContext>(csConfigName, migrationAssembly, b).Options;
 
-        public class SQLiteDbContextFactory<TDbContext> : IDesignTimeDbContextFactory<TDbContext> where TDbContext : DbContext, new()
+        public class DefaultDbContextFactory<TDbContext> : IDesignTimeDbContextFactory<TDbContext> where TDbContext : DbContext, new()
         { // this is called by Migrations, in turn it calls parameterless constructor which uses `base()` with the result of `GetSQLiteDbContextOptions()` as parameter
             public TDbContext CreateDbContext(string[] args) => new();
         }
