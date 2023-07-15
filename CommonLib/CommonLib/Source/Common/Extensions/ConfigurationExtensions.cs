@@ -8,7 +8,7 @@ namespace CommonLib.Source.Common.Extensions
     {
         public static AuthenticationStorageMode GetAuthenticationStorageMode(this IConfiguration configuration)
         {
-            return configuration.GetSection("Authentication").GetValue<string>("StorageMode")?.ToEnum<AuthenticationStorageMode>() ?? AuthenticationStorageMode.NotSpeecified;
+            return configuration.GetSection("Authentication").GetValue<string>("StorageMode")?.ToEnum<AuthenticationStorageMode>() ?? AuthenticationStorageMode.NotSpecified;
         }  
     }
 }
