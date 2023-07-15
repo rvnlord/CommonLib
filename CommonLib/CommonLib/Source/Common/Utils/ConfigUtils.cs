@@ -119,6 +119,13 @@ namespace CommonLib.Source.Common.Utils
         private static void OnBackendDBCSChanging(string changedFrom, string changedTo) => OnBackendDBCSChanging(new StringChangedEventArgs(changedFrom, changedTo));
     }
 
+    public enum AuthenticationStorageMode
+    {
+        NotSpecified,
+        Database,
+        OnChain,
+    }
+
     public delegate void StringChangedEventHandler(object sender, StringChangedEventArgs e);
 
     public class StringChangedEventArgs
