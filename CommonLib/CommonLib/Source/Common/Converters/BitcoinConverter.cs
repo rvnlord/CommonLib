@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using AutoMapper.Internal;
 using CommonLib.Source.Common.Extensions;
 using CommonLib.Source.Common.Extensions.Collections;
+using CommonLib.Source.Common.Utils;
 using MoreLinq;
 using Org.BouncyCastle.Asn1.X9;
 using Org.BouncyCastle.Crypto;
@@ -25,7 +27,7 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] ECPrivateKeyByteArrayToBitcoinCompressedPrivateKey(this byte[] rawPrivateKey)
         {
             var arrPrivateKeyWithVersion = new byte[] { 0x80 }.Concat(rawPrivateKey, new byte[] { 0x01 });
-            return arrPrivateKeyWithVersion.Concat(Sha256(Sha256(arrPrivateKeyWithVersion)).Take(4)).ToArray();
+            return arrPrivateKeyWithVersion.Concat(arrPrivateKeyWithVersion.Sha256().Sha256().Take(4)).ToArray();
         }
 
         // AsymmetricKeyParameter (EC Public Key) --> byte[] (Bitcoin Compressed Public Key)
@@ -44,16 +46,16 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] ToBitcoinCompressedAddress(this AsymmetricKeyParameter ecPublicKey)
         {
             var pubKey = ToBitcoinCompressedPublicKey(ecPublicKey);
-            var ripemd = new byte[] { 0x00 }.Concat(Ripemd160(Sha256(pubKey))).ToArray();
-            return ripemd.Concat(Sha256(Sha256(ripemd)).Take(4)).ToArray();
+            var ripemd = new byte[] { 0x00 }.Concat(pubKey.Sha256().Ripemd160()).ToArray();
+            return ripemd.Concat(ripemd.Sha256().Sha256().Take(4)).ToArray();
         }
 
         // AsymmetricKeyParameter (EC Public Key) --> byte[] (Bitcoin Uncompressed Address)
         public static byte[] ToBitcoinUncompressedAddress(this AsymmetricKeyParameter ecPublicKey)
         {
             var pubKey = ToBitcoinUncompressedPublicKey(ecPublicKey);
-            var ripemd = new byte[] { 0x00 }.Concat(Ripemd160(Sha256(pubKey))).ToArray();
-            return ripemd.Concat(Sha256(Sha256(ripemd)).Take(4)).ToArray();
+            var ripemd = new byte[] { 0x00 }.Concat(pubKey.Sha256().Ripemd160()).ToArray();
+            return ripemd.Concat(ripemd.Sha256().Sha256().Take(4)).ToArray();
         }
 
         // byte[] (Bitcoin Compressed Private Key) --> ECPrivateKeyOrderedDictionary<string, string> (EC Private Key)
@@ -152,7 +154,7 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] ECPrivateKeyByteArrayToBitcoinUncompressedPrivateKey(this byte[] ecPrivateKey)
         {
             var arrPrivateKeyWithVersion = new byte[] { 0x80 }.Concat(ecPrivateKey);
-            return arrPrivateKeyWithVersion.Concat(Sha256(Sha256(arrPrivateKeyWithVersion)).Take(4)).ToArray();
+            return arrPrivateKeyWithVersion.Concat(arrPrivateKeyWithVersion.Sha256().Sha256().Take(4)).ToArray();
         }
 
         // byte[] (Bitcoin Compressed Public Key) --> this byte[] (Bitcoin Address)
