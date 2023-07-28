@@ -28,6 +28,7 @@ using Org.BouncyCastle.Crypto.Signers;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Security;
 using WebSocketSharp;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 using EthECDSASignature = CommonLib.Source.Common.Cryptography.EthECDSASignature;
 
 namespace CommonLib.Source.Common.Utils
@@ -100,7 +101,7 @@ namespace CommonLib.Source.Common.Utils
             return signer.VerifySignature(data, signature.R.ToBigIntU(), signature.S.ToBigIntU());
         }
 
-        public static byte[] Ripemd160(byte[] data)
+        public static byte[] Ripemd160(this byte[] data)
         {
             if (data == null)
                 throw new ArgumentNullException(nameof(data));
@@ -148,15 +149,17 @@ namespace CommonLib.Source.Common.Utils
 
         public static byte[] SignHMACSha1(this IEnumerable<byte> data, byte[] key) => SignHMACSha1(key, data.ToArray());
 
-        public static byte[] Sha256_(this byte[] value)
+        public static byte[] Sha256(this byte[] data)
         {
-            var sha256Creator = SHA256.Create();
-            var sha256 = sha256Creator.ComputeHash(value);
-            sha256Creator.Dispose();
-            return sha256;
-        }
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
 
-        public static byte[] Sha256(byte[] value) => value.Sha256_();
+            var digest = new Sha256Digest();
+            var output = new byte[digest.GetDigestSize()];
+            digest.BlockUpdate(data, 0, data.Length);
+            digest.DoFinal(output, 0);
+            return output;
+        }
 
         public static string Keccak256(this string value) => Keccak256(value.UTF8ToByteArray()).ToHexString();
 
