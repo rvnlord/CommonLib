@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using CommonLib.Source.Common.Converters;
 
 namespace CommonLib.Source.Common.Extensions
@@ -42,6 +43,17 @@ namespace CommonLib.Source.Common.Extensions
                 throw new ArgumentNullException(nameof(type));
 
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(ObservableCollection<>);
+        }
+
+        public static bool IsAnonymousType(this Type type)
+        {
+            if (type == null)
+                throw new ArgumentNullException(nameof(type));
+            
+            return Attribute.IsDefined(type, typeof(CompilerGeneratedAttribute), false)
+                   && type.IsGenericType && type.Name.Contains("AnonymousType")
+                   && (type.Name.StartsWith("<>") || type.Name.StartsWith("VB$"))
+                   && type.Attributes.HasFlag(TypeAttributes.NotPublic);
         }
 
         public static string GetPropertyDisplayName(this Type modelType, string propertyName)
