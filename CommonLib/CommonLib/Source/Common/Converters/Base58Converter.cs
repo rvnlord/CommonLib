@@ -15,7 +15,7 @@ namespace CommonLib.Source.Common.Converters
 
         public static string HexToBase58(this string str) => str.HexToByteArray().ToBase58StringLegacy();
         public static string UTF8ToBase58(this string utf8str, bool throwIfInputIsAlreadyBase58 = false) => throwIfInputIsAlreadyBase58 && utf8str.IsBase58() ? throw new FormatException("Input is already a base58 string") : utf8str.UTF8ToByteArray().ToBase58String();
-        public static string Base58ToUTF8(this string base58) => base58.Base58ToByteArray().ToUTF8String();
+        public static string Base58ToUTF8(this string base58) => base58.Base58ToByteArray().UTF8ToString();
 
         public static byte[] Base58ToByteArrayLegacy(this string encoded)
         {
@@ -114,7 +114,7 @@ namespace CommonLib.Source.Common.Converters
                     var n = j >= d.Count ? -1 : d[j];                  
                     n = n > 0 ? n * 256 + c : c;     
                     c = n / 58;             
-                    d.InsertOrUpdate(j, (byte)(n % 58));
+                    d.InsertOrAdd(j, (byte)(n % 58));
                     j++;
                 }
             }
@@ -144,7 +144,7 @@ namespace CommonLib.Source.Common.Converters
                     var n = j >= d.Count ? -1 : d[j];    
                     n = n > 0 ? n * 58 + c : c;
                     c = n >> 8;
-                    d.InsertOrUpdate(j, (byte)(n % 256));
+                    d.InsertOrAdd(j, (byte)(n % 256));
                     j++;
                 }
             }
