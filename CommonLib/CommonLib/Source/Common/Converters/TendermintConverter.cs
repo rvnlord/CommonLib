@@ -22,7 +22,7 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] TendermintPublicKeyToTendermintAddress(this byte[] pubKey)
         {
             if (pubKey.Length != 32)
-                throw new FormatException("Tendermint private key should be 32 bytes long");
+                throw new FormatException("Tendermint public key should be 32 bytes long");
             
             return pubKey.Sha256().Take(20).ToArray();
         }
