@@ -209,7 +209,7 @@ namespace CommonLib.Source.Common.Extensions.Collections
 
         public static async Task AddRangeAsync<T>(this List<T> l, IEnumerable<T> range) => await Task.Run(() => l.AddRange(range));
 
-        public static List<T> InsertOrUpdate<T>(this List<T> list, int i, T value)
+        public static List<T> InsertOrAdd<T>(this List<T> list, int i, T value)
         {
             if (i < 0)
                 throw new ArgumentOutOfRangeException(nameof(i));
@@ -222,5 +222,26 @@ namespace CommonLib.Source.Common.Extensions.Collections
 
         public static async Task<IEnumerable<TKey>> SelectAsync<TSource, TKey>(this Task<IList<TSource>> source, Func<TSource, Task<TKey>> selector) => await (await source).SelectAsync(selector);
 
+        public static TSource AddAndGet<TSource>(this List<TSource> list, TSource item)
+        {
+            list.Add(item);
+            return item;
+        }
+
+        public static void AddOrUpdateBy<TSource>(this List<TSource> list, TSource item, Func<TSource, object> keySelector)
+        {
+            var itemKey = keySelector(item);
+            var isItemKeyAnonymousType = itemKey.GetType().IsAnonymousType();
+            for (var i = 0; i < list.Count; i++)
+            {
+                if (isItemKeyAnonymousType ? keySelector(list[i]).AnonymousTypeEquals(itemKey) : keySelector(list[i]).Equals(itemKey))
+                {
+                    list[i] = item;
+                    return;
+                }
+            }
+
+            list.Add(item);
+        }
     }
 }
