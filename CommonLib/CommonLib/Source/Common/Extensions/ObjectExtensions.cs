@@ -149,5 +149,28 @@ namespace CommonLib.Source.Common.Extensions
             var attr = Attribute.GetCustomAttribute(pi, typeof(DescriptionAttribute)) as DescriptionAttribute;
             return attr?.Description;
         }
+
+        public static bool AnonymousTypeEquals(this object key1, object key2)
+        {
+            if (!key1.GetType().IsAnonymousType() || !key2.GetType().IsAnonymousType())
+                throw new InvalidOperationException("Both objects being compared need to be of anonymous type");
+            
+            if (key1.GetType().IsAnonymousType() && key2.GetType().IsAnonymousType())
+            {
+                var properties1 = key1.GetType().GetProperties().OrderBy(p => p.Name).ToArray();
+                var properties2 = key2.GetType().GetProperties().OrderBy(p => p.Name).ToArray();
+
+                if (properties1.Length != properties2.Length)
+                    return false;
+
+                for (var i = 0; i < properties1.Length; i++)
+                    if (!Equals(properties1[i].GetValue(key1), properties2[i].GetValue(key2)))
+                        return false;
+
+                return true;
+            }
+
+            return key1.Equals(key2);
+        }
     }
 }
