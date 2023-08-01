@@ -86,7 +86,7 @@ namespace CommonLib.Source.Common.Converters
                 var write_index = 0;
                 if (addLeadingZero)
                 {
-                    bytes.InsertOrUpdate(write_index++, CharUtils.CharacterToByte(str[harIdx], harIdx));
+                    bytes.InsertOrAdd(write_index++, CharUtils.CharacterToByte(str[harIdx], harIdx));
                     harIdx += 1;
                 }
 
@@ -95,7 +95,7 @@ namespace CommonLib.Source.Common.Converters
                     var upper = CharUtils.CharacterToByte(str[read_index], read_index, 4);
                     var lower = CharUtils.CharacterToByte(str[read_index + 1], read_index + 1);
 
-                    bytes.InsertOrUpdate(write_index++, (byte)(upper | lower));
+                    bytes.InsertOrAdd(write_index++, (byte)(upper | lower));
                 }
             }
 
@@ -156,7 +156,7 @@ namespace CommonLib.Source.Common.Converters
                 ? BitConverter.ToInt64(bytes)
                 : BitConverter.ToInt64(bytes.Reverse().ToArray());
         }
-
+        
         public static bool IsHex(this string value)
         {
             var text = value.RemoveHexPrefix();
