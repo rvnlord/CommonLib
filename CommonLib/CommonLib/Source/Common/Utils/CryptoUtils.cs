@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -12,6 +13,7 @@ using CommonLib.Source.Common.Utils.TypeUtils;
 using CommonLib.Source.Common.Utils.UtilClasses;
 using Keras.Layers;
 using MoreLinq;
+using Nethereum.RPC.Shh.DTOs;
 using NuGet.Packaging.Signing;
 using Org.BouncyCastle.Asn1.Nist;
 using Org.BouncyCastle.Asn1.X9;
@@ -83,23 +85,44 @@ namespace CommonLib.Source.Common.Utils
             return ecdsaVerify.VerifySignature(signature);
         }
 
-        public static EthECDSASignature SignEthECDSA(AsymmetricKeyParameter privKey, byte[] data)
+        //public static EthECDSASignature SignEthECDSALegacy(AsymmetricKeyParameter privKey, byte[] hashOfSaltedHashOfData)
+        //{
+        //    var digest = new Sha256Digest();
+        //    var signer = new ECDsaSigner(new HMacDsaKCalculator(digest));
+        //    signer.Init(true, privKey);
+        //    return new EthECDSASignature(signer.GenerateSignature(hashOfSaltedHashOfData)).CalculateV(privKey.ECPrivateKeyToECPublicKey(), hashOfSaltedHashOfData);
+        //}
+
+        public static byte[] SignEthECDSA(this byte[] data, byte[] privKey)
         {
-            var digest = new Sha256Digest();
-            var signer = new ECDsaSigner(new HMacDsaKCalculator(digest));
-            signer.Init(true, privKey);
-            return new EthECDSASignature(signer.GenerateSignature(data)).CalculateV(privKey.ECPrivateKeyToECPublicKey(), data);
+            var hashOfSaltedHash = data.EthHash();
+            var signer = new ECDsaSigner(new HMacDsaKCalculator(new Sha256Digest()));
+            signer.Init(true, privKey.ECPrivateKeyByteArrayToECPrivateKey());
+            return new EthECDSASignature(signer.GenerateSignature(hashOfSaltedHash)).CalculateV(hashOfSaltedHash, privKey.ECPrivateKeyByteArrayToECPublicKeyByteArray()).ToByteArray();
         }
 
-        public static bool VerifyEthECDSA(AsymmetricKeyParameter pubKey, EthECDSASignature signature, byte[] data)
+        public static byte[] VerifyEthECDSA(this byte[] data, byte[] signature)
         {
-            if (signature == null)
-                throw new ArgumentNullException(nameof(signature));
-
-            var signer = new ECDsaSigner();
-            signer.Init(false, pubKey);
-            return signer.VerifySignature(data, signature.R.ToBigIntU(), signature.S.ToBigIntU());
+            var hashOfSaltedHash = data.EthHash();
+            return EthECDSASignature.ExtractECDSASignature(signature).RecoverFromSignature(hashOfSaltedHash).ECPublicKeyByteArrayToEthereumAddressByteArray();
         }
+
+        public static byte[] EthHash(this byte[] data)
+        {
+            return "0x19".HexToByteArray().ConcatMany("Ethereum Signed Message:\n".UTF8ToByteArray(),
+                data.Length.ToStringInvariant().UTF8ToByteArray(),
+                data).Keccak256();
+        }
+
+        //public static bool VerifyEthECDSALegacy(AsymmetricKeyParameter pubKey, EthECDSASignature signature, byte[] data)
+        //{
+        //    if (signature == null)
+        //        throw new ArgumentNullException(nameof(signature));
+
+        //    var signer = new ECDsaSigner();
+        //    signer.Init(false, pubKey);
+        //    return signer.VerifySignature(data, signature.R.ToBigIntU(), signature.S.ToBigIntU());
+        //}
 
         public static byte[] Ripemd160(this byte[] data)
         {
@@ -176,7 +199,7 @@ namespace CommonLib.Source.Common.Utils
             return output;
         }
 
-        public static byte[] Keccak256(this List<byte> value)
+        public static byte[] Keccak256(this IEnumerable<byte> value)
         {
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
