@@ -13,11 +13,13 @@ namespace CommonLib.Source.Common.Utils.TypeUtils
         {
             return Enum.GetValues(typeof(T)).Cast<int>().Select(i => new DdlItem(i, Enum.GetName(typeof(T), i)?.ReplaceInvariant("_", " ").Trim())).ToList();
         }
-
-        public static List<DdlItem<TValue>> EnumToTypedDdlItems<TValue>()
+        
+        public static List<DdlItem<TValue, TItem>> EnumToTypedDdlItems<TValue, TItem>()
         {
-            return GetValues<TValue>().Select(v => new DdlItem<TValue>(v, v.EnumToString())).ToList();
+            return GetValues<TValue>().Select(v => new DdlItem<TValue, TItem>(v, v.EnumToString())).ToList();
         }
+
+        public static List<DdlItem<TValue, object>> EnumToTypedDdlItems<TValue>() => EnumToTypedDdlItems<TValue, object>();
 
         public static List<DdlItem> EnumToDdlItems(this Type type)
         {
