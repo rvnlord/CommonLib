@@ -11,6 +11,24 @@ namespace CommonLib.Source.Common.Converters
         {
             return new Bech32Encoder(hrp).Encode(data);
         }
+
+        public static byte[] Bech32ToByteArray(this string strBech32, string hrp)
+        {
+            return new Bech32Encoder(hrp).Decode(strBech32);
+        }
+
+        public static bool IsBech32(this string strBech32)
+        {
+            try
+            {
+                new Bech32Encoder(string.Empty).Decode(strBech32);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 
     public class Bech32EncodingType
@@ -313,9 +331,9 @@ namespace CommonLib.Source.Common.Converters
         {
             errorPosition = null;
 
-			Span<byte> values = _hrpExpand.Length + data.Length is var v && v > 256 ? new byte[v] : stackalloc byte[v];
+			var values = _hrpExpand.Length + data.Length is var v && v > 256 ? new byte[v] : stackalloc byte[v];
 			_hrpExpand.CopyTo(values);
-			data.CopyTo(values.Slice(_hrpExpand.Length));
+			data.CopyTo(values[_hrpExpand.Length..]);
 
             var polymod = Polymod(values);
             if (polymod == Bech32EncodingType.BECH32.EncodingConstant)
@@ -429,8 +447,8 @@ namespace CommonLib.Source.Common.Converters
                 throw new FormatException("The Bech32 string is too short");
             if (StrictLength && encoded.Length > 90)
                 throw new FormatException("The Bech32 string is too long");
-            if (pos != _hrp.Length)
-                throw new FormatException("Mismatching human readable part");
+            //if (pos != _hrp.Length)
+            //    throw new FormatException("Mismatching human readable part");
 
             for (var i = 0; i < _hrp.Length; i++)
                 if (buffer[i] != _hrp[i])
@@ -440,7 +458,7 @@ namespace CommonLib.Source.Common.Converters
 
             for (int j = 0, i = pos + 1; i < encoded.Length; i++, j++)
             {
-                int index = Array.IndexOf(Byteset, buffer[i]);
+                var index = Array.IndexOf(Byteset, buffer[i]);
                 if (index == -1)
                     throw new FormatException("bech chars are out of range");
                 data[j] = (byte)index;
@@ -451,7 +469,6 @@ namespace CommonLib.Source.Common.Converters
             if (error == null || error.Length == 0)
                 throw new FormatException("Error while verifying Bech32 checksum");
             throw new Bech32FormatException($"Error in Bech32 string at {string.Join(",", error)}", error);
-
         }
 
 		protected virtual byte[] ConvertBits(IEnumerable<byte> data, int fromBits, int toBits, bool pad = true)
@@ -491,9 +508,9 @@ namespace CommonLib.Source.Common.Converters
             CheckCase(addr);
             var data = DecodeDataCore(addr, out var encodingType);
 
-			var decoded = ConvertBits(data.AsSpan().Slice(1), 5, 8, false);
+			var decoded = ConvertBits(data.AsSpan()[1..], 5, 8, false);
 
-            if (decoded.Length < 2 || decoded.Length > 40)
+            if (decoded.Length is < 2 or > 40)
                 throw new FormatException("Invalid decoded data length");
             witnessVerion = data[0];
             if (witnessVerion == 0 && encodingType != Bech32EncodingType.BECH32)
@@ -507,6 +524,8 @@ namespace CommonLib.Source.Common.Converters
                 throw new FormatException("Decoded witness program with unknown length");
             return decoded;
         }
+
+        public byte[] Decode(string addr) => Decode(addr, out _);
         
 		public string EncodeRaw(byte[] data, Bech32EncodingType encodingType)
 		{
