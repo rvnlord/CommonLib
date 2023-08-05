@@ -61,13 +61,7 @@ namespace CommonLib.Source.Common.Converters
         {
             return CryptoUtils.CreateECKeyPair(ecPrivateKey.ToECPrivateKeyByteArray()).Public;
         }
-
-        // byte[] (ECDSA Signature) --> ECDSASignature (ECDSA Signature)
-        public static EthECDSASignature ECDSASignatureByteArrayToECDSASignature(this byte[] sig)
-        {
-            return new EthECDSASignature(sig);
-        }
-
+        
         // string (EC Private Key) --> AsymmetricKeyParameter (EC Private Key)
         public static AsymmetricKeyParameter ECPrivateKeyStringToECPrivateKey(this string ecPrivateKey)
         {
