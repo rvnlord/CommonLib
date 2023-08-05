@@ -30,7 +30,7 @@ namespace CommonLib.Source.Common.Converters
         
         public static string EthereumAddressByteArrayToEthereumAddressChecksumString(this byte[] bytesAddress)
         {
-            var address = bytesAddress.HexToString().ToLower().RemoveHexPrefix();
+            var address = bytesAddress.ToHexString().ToLower().RemoveHexPrefix();
             var addressHash = address.Keccak256();
             var checksumAddress = new StringBuilder("0x");
 
