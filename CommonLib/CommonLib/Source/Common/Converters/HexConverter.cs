@@ -24,7 +24,7 @@ namespace CommonLib.Source.Common.Converters
 
         public static string ToHexString(this int n) => n.ToStringInvariant("X");
 
-        public static string HexToString(this byte[] value, bool prefix = false)
+        public static string ToHexString(this byte[] value, bool prefix = false)
         {
             var strPrex = prefix ? "0x" : "";
             return strPrex + string.Concat(value.Select(b => b.ToStringInvariant("x2")).ToArray());
