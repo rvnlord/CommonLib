@@ -12,7 +12,7 @@ namespace CommonLib.Source.Common.Converters
         public static byte[] UTF8ToHex(this byte[] arr) => arr.UTF8ToString().HexToByteArray();
         public static byte[] HexToUTF8(this IEnumerable<byte> en) => en.ToArray().HexToUTF8();
         public static byte[] UTF8ToHex(this IEnumerable<byte> en) => en.ToArray().UTF8ToHex();
-        public static string UTF8ToHex(this string strUtf8) => strUtf8.UTF8ToByteArray().HexToString();
+        public static string UTF8ToHex(this string strUtf8) => strUtf8.UTF8ToByteArray().ToHexString();
         public static string HexToUTF8(this string strHex) => strHex.HexToByteArray().UTF8ToString();
     }
 }
