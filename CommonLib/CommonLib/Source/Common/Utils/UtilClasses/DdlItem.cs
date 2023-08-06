@@ -17,15 +17,24 @@
         }
     }
 
-    public class DdlItem<TValue>
+    public class DdlItem<TValue, TItem>
     {
         public TValue Value { get; set; }
         public string Text { get; set; }
+        public TItem Item { get; set; }
 
         public DdlItem(TValue value, string text)
         {
             Value = value;
             Text = text;
+            Item = default;
+        }
+
+        public DdlItem(TValue value, string text, TItem item)
+        {
+            Value = value;
+            Text = text;
+            Item = item;
         }
 
         public override string ToString()
