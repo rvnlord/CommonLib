@@ -101,11 +101,19 @@ namespace CommonLib.Source.Common.Utils
             return new EthECDSASignature(signer.GenerateSignature(hashOfSaltedHash)).CalculateV(hashOfSaltedHash, privKey.ECPrivateKeyByteArrayToECPublicKeyByteArray()).ToByteArray();
         }
 
-        public static byte[] VerifyEthECDSA(this byte[] data, byte[] signature)
+        public static string SignEthECDSA(this string data, string privKey) => data.UTF8ToByteArray().SignEthECDSA(privKey.HexToByteArray()).ToHexString(true);
+
+        public static byte[] RecoverAddressFromEthECDSA(this byte[] data, byte[] signature)
         {
             var hashOfSaltedHash = data.EthHash();
             return EthECDSASignature.ExtractECDSASignature(signature).RecoverFromSignature(hashOfSaltedHash).ECPublicKeyByteArrayToEthereumAddressByteArray();
         }
+
+        public static string RecoverAddressFromEthECDSA(this string data, string signature) => data.UTF8ToByteArray().RecoverAddressFromEthECDSA(signature.HexToByteArray()).EthereumAddressByteArrayToEthereumAddressChecksumString();
+
+        public static bool VerifyEthECDSA(this byte[] data, byte[] signature, byte[] address) => data.RecoverAddressFromEthECDSA(signature).SequenceEqual(address);
+
+        public static bool VerifyEthECDSA(this string utf8data, string hexSignature, string hexAddress) => utf8data.UTF8ToByteArray().VerifyEthECDSA(hexSignature.HexToByteArray(), hexAddress.HexToByteArray());
 
         public static byte[] EthHash(this byte[] data)
         {
@@ -113,6 +121,8 @@ namespace CommonLib.Source.Common.Utils
                 data.Length.ToStringInvariant().UTF8ToByteArray(),
                 data).Keccak256();
         }
+
+        public static string EthHash(this string data) => data.UTF8ToByteArray().EthHash().ToHexString();
 
         //public static bool VerifyEthECDSALegacy(AsymmetricKeyParameter pubKey, EthECDSASignature signature, byte[] data)
         //{
@@ -188,7 +198,6 @@ namespace CommonLib.Source.Common.Utils
 
         public static byte[] Keccak256(this byte[] value)
         {
-
             if (value == null)
                 throw new ArgumentNullException(nameof(value));
 
@@ -205,6 +214,19 @@ namespace CommonLib.Source.Common.Utils
                 throw new ArgumentNullException(nameof(value));
 
             return Keccak256(value.ToArray());
+        }
+
+        public static byte[] Keccak512(this IEnumerable<byte> value)
+        {
+            if (value is null)
+                throw new ArgumentNullException(nameof(value));
+
+            var arrValue = value.ToArray();
+            var digest = new KeccakDigest(512);
+            var output = new byte[digest.GetDigestSize()];
+            digest.BlockUpdate(arrValue, 0, arrValue.Length);
+            digest.DoFinal(output, 0);
+            return output;
         }
 
         public static byte[] GenerateCamelliaKey()
