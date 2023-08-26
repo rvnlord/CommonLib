@@ -15,7 +15,7 @@ namespace CommonLib.Source.Common.Converters
 
         public static string HexToBase58(this string str) => str.HexToByteArray().ToBase58StringLegacy();
         public static string UTF8ToBase58(this string utf8str, bool throwIfInputIsAlreadyBase58 = false) => throwIfInputIsAlreadyBase58 && utf8str.IsBase58() ? throw new FormatException("Input is already a base58 string") : utf8str.UTF8ToByteArray().ToBase58String();
-        public static string Base58ToUTF8(this string base58) => base58.Base58ToByteArray().UTF8ToString();
+        public static string Base58ToUTF8(this string base58) => base58.Base58ToByteArray().ToUTF8String();
 
         public static byte[] Base58ToByteArrayLegacy(this string encoded)
         {
