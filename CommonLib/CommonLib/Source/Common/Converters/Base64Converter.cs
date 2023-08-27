@@ -11,7 +11,7 @@ namespace CommonLib.Source.Common.Converters
         public static string ToBase64String(this byte[] arr) => Convert.ToBase64String(arr);
         public static string ToBase64String(this IEnumerable<byte> list) => Convert.ToBase64String(list.ToArray());
         public static string UTF8ToBase64(this string utf8str) => utf8str.UTF8ToByteArray().ToBase64String();
-        public static string Base64ToUTF8(this string base64) => base64.Base64ToByteArray().UTF8ToString();
+        public static string Base64ToUTF8(this string base64) => base64.Base64ToByteArray().ToUTF8String();
 
         public static byte[] Base64ToByteArrayOrDefault(this string base64) => base64.IsBase64() ? base64.Base64ToByteArray() : default;
         public static byte[] Base64ToByteArrayOrNull(this string base64) => base64.IsBase64() ? base64.Base64ToByteArray() : null;
@@ -47,12 +47,12 @@ namespace CommonLib.Source.Common.Converters
         }
 
         public static string UTF8ToBase64SafeUrl(this string utf8str) => utf8str.UTF8ToByteArray().ToBase64SafeUrlString();
-        public static string Base64SafeUrlToUTF8(this string base64str) => base64str.Base64SafeUrlToByteArray().UTF8ToString();
+        public static string Base64SafeUrlToUTF8(this string base64str) => base64str.Base64SafeUrlToByteArray().ToUTF8String();
         public static string Base64SafeUrlToUTF8OrNull(this string base64str)
         {
             try
             {
-                return base64str.Base64SafeUrlToByteArray().UTF8ToString();
+                return base64str.Base64SafeUrlToByteArray().ToUTF8String();
             }
             catch (Exception)
             {
