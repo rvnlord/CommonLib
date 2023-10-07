@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Globalization;
 using CommonLib.Source.Common.Extensions;
+using Nethereum.Hex.HexTypes;
+using Org.BouncyCastle.Math;
 
 namespace CommonLib.Source.Common.Converters
 {
@@ -18,6 +20,11 @@ namespace CommonLib.Source.Common.Converters
             var decimalN = o.ToDecimalN();
             if (decimalN != null) return (decimal)decimalN;
             throw new ArgumentNullException(nameof(o));
+        }
+
+        public static decimal ToDecimal(this HexBigInteger b)
+        {
+            return (decimal)b.Value;
         }
     }
 }
